@@ -68,7 +68,7 @@ export function ZapCard() {
           isConfigured={step.isConfigured}
         />
       ))}
-      {/* <Card className="w-full mb-2 border-none shadow-md hover:shadow-lg transition-shadow duration-200">
+      <Card className="w-full mb-2 border-none shadow-md hover:shadow-lg transition-shadow duration-200 dark:bg-slate-100">
         <CardContent className="p-4">
           <Button 
             variant="outline" 
@@ -78,7 +78,7 @@ export function ZapCard() {
             <ChevronRight className="h-5 w-5" />
           </Button>
         </CardContent>
-      </Card> */}
+      </Card>
       <Tail onClick={() => console.log("Adding new step")} showPlus={true} />
     </div>
   )
