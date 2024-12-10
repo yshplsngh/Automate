@@ -89,7 +89,6 @@ const StepCard: React.FC<StepCardProps> = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={`Configure ${title}`}
-        subtitle={`Set up your ${subtitle}`}
       />
     </>
   );

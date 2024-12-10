@@ -6,7 +6,7 @@ const getStoreForRoute = (id: string) => {
   if (!storeMap.has(id)) {
     const useStore = create((set) => ({
       state: null,
-      setState: (value) => set({ state: value }),
+      setState: (value: any) => set({ state: value }),
       clearState: () => set({ state: null }),
     }));
 
