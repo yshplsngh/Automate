@@ -22,8 +22,8 @@ export function ConfigureStepModal({
   onClose,
   title,
 }: ConfigureStepModalProps) {
-  const [activeTab, setActiveTab] = useState<"setup" | "configure" | "test">(
-    "setup"
+  const [activeTab, setActiveTab] = useState<"app" | "setup" | "configure" | "test">(
+    "app"
   );
   const [enabledTabs, setEnabledTabs] = useState<string[]>(["setup"]);
 
@@ -56,12 +56,12 @@ export function ConfigureStepModal({
         <Tabs
           value={activeTab}
           onValueChange={(value) =>
-            setActiveTab(value as "setup" | "configure" | "test")
+            setActiveTab(value as "app"| "setup" | "configure" | "test")
           }
           className="w-full"
         >
           <TabsList className="flex flex-row justify-start w-full bg-inherit">
-            {["Setup", "Configure", "Test"].map((step, index) => {
+            {["App", "Setup", "Configure", "Test"].map((step, index) => {
               return (
                 <TabsTrigger
                   key={step}
@@ -90,6 +90,23 @@ export function ConfigureStepModal({
               );
             })}
           </TabsList>
+          <TabsContent value="app" className="p-4 space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex items-center gap-1">
+                App
+                <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 px-3 py-2 border rounded-md">
+                  <Mail className="h-5 w-5 text-orange-600" />
+                  <span className="text-sm">Email by Zapier</span>
+                </div>
+                <Button variant="outline" size="sm" className="text-indigo-600">
+                  Change
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
           <TabsContent value="setup" className="p-4 space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium flex items-center gap-1">
