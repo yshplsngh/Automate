@@ -1,10 +1,17 @@
-type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+type HttpMethod =
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "PATCH"
+  | "DELETE"
+  | "OPTIONS"
+  | "HEAD";
 
 export type HttpJob = {
   type: "http";
   key: "http";
   name: "HTTP";
-  description: "Send a Http Request to a specified URL";
+  description: "Send an HTTP request to a specified URL.";
   input: [
     {
       url: string;
@@ -13,7 +20,7 @@ export type HttpJob = {
       method: HttpMethod;
     },
     {
-      headers: { [key: string]: string };
+      headers: Record<string, string>;
     },
     {
       body: string;
@@ -24,12 +31,22 @@ export type HttpJob = {
       statusCode: number;
     },
     {
-      headers: string;
+      headers: Record<string, string>;
     },
     {
       body: string;
     }
   ];
   trigger: boolean;
-  interval?: number; // in minutes, should be set if the trigger is true
+  interval?: {
+    unit: "minute" | "hour" | "day" | "week" | "month";
+    value: number; // Example: every `value` units
+  };
+  specificTime?: {
+    date: string; // YYYY-MM-DD format
+    time: string; // HH:mm:ss format
+    timeZone: string; // e.g., "America/New_York"
+  };
+  setupComponent: React.FC;
+  configureComponent: React.FC;
 };

@@ -7,15 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HttpForm } from "@/jobs/http/HttpConfigForm";
+import DateTimeIntervalSelector from "@/jobs/http/HttpSetup";
 
 interface ConfigureStepModalProps {
   isOpen: boolean;
@@ -112,25 +106,7 @@ export function ConfigureStepModal({
                 </Button>
               </div>
             </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-1">
-                Trigger event
-                <span className="text-red-500">*</span>
-              </label>
-              <Select defaultValue="new-inbound">
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select trigger event" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="new-inbound">New Inbound Email</SelectItem>
-                  <SelectItem value="new-outbound">
-                    New Outbound Email
-                  </SelectItem>
-                  <SelectItem value="new-draft">New Draft</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <DateTimeIntervalSelector />
           </TabsContent>
           <TabsContent value="configure" className="p-4">
             <HttpForm />
