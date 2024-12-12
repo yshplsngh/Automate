@@ -1,7 +1,5 @@
-import { useState } from "react";
-import { format } from "date-fns";
-import { CalendarIcon, Clock } from "lucide-react";
-
+import { useEffect, useState } from "react";
+import { format, parseISO, set } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -20,17 +18,57 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Schedule } from "../job-config";
+import { CalendarIcon, Clock } from "lucide-react";
 
-export default function DateTimeIntervalSelector() {
-  const [isDateTimeMode, setIsDateTimeMode] = useState(true);
+interface ScheduleConfigProps {
+  data?: Schedule; // ISO 8601 string with timezone
+  onSubmit: (value: Schedule) => void;
+}
+
+export const ScheduleConfig = ({ data, onSubmit }: ScheduleConfigProps) => {
+  const [isDateTimeMode, setIsDateTimeMode] = useState<boolean>(true);
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState<string>("12:00");
   const [timezone, setTimezone] = useState<string>("UTC");
-  const [intervalType, setIntervalType] = useState<string>("minute");
-  const [intervalAmount, setIntervalAmount] = useState<number>(1);
+  const [intervalType, setIntervalType] = useState<
+    "minute" | "hour" | "day" | "week" | "month"
+  >("minute");
+  const [intervalAmount, setIntervalAmount] = useState<number>(10);
+
+  // Parse the ISO string on load
+  useEffect(() => {
+    if (data?.fixedTime?.dateTime) {
+      const parsedDate = parseISO(data.fixedTime.dateTime);
+      setDate(parsedDate);
+      setTime(format(parsedDate, "HH:mm"));
+      const timeZoneMatch =
+        data.fixedTime.dateTime.match(/([+-]\d{2}:\d{2}|Z)$/);
+      setTimezone(timeZoneMatch?.[0] || "UTC");
+    }
+  }, [data]);
+
+  const handleSubmit = () => {
+    if (isDateTimeMode && date) {
+      const [hours, minutes] = time.split(":").map(Number);
+      const updatedDate = set(date, { hours, minutes });
+      const isoWithTimezone = `${
+        updatedDate.toISOString().split("Z")[0]
+      }${timezone}`;
+      onSubmit({
+        type: "fixed",
+        fixedTime: { dateTime: isoWithTimezone },
+      });
+    } else {
+      onSubmit({
+        type: "interval",
+        interval: { unit: intervalType, value: intervalAmount },
+      });
+    }
+  };
 
   return (
-    <div className="space-y-4 w-full  p-4 bg-inherit rounded-lg shadow">
+    <div className="space-y-4 w-full p-4 bg-inherit rounded-lg shadow">
       <div className="flex items-center justify-between w-full">
         <Label htmlFor="mode-toggle">Date/Time Mode</Label>
         <Switch
@@ -90,12 +128,21 @@ export default function DateTimeIntervalSelector() {
                 <SelectValue placeholder="Select timezone" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="UTC">UTC</SelectItem>
-                <SelectItem value="America/New_York">Eastern Time</SelectItem>
-                <SelectItem value="America/Chicago">Central Time</SelectItem>
-                <SelectItem value="America/Denver">Mountain Time</SelectItem>
-                <SelectItem value="America/Los_Angeles">
-                  Pacific Time
+                <SelectItem value="Z">UTC (+00:00)</SelectItem>
+                <SelectItem value="+05:30">
+                  Indian Standard Time (IST) (+05:30)
+                </SelectItem>
+                <SelectItem value="-05:00">
+                  Eastern Time (ET) (-05:00)
+                </SelectItem>
+                <SelectItem value="-06:00">
+                  Central Time (CT) (-06:00)
+                </SelectItem>
+                <SelectItem value="-07:00">
+                  Mountain Time (MT)(-07:00)
+                </SelectItem>
+                <SelectItem value="-08:00">
+                  Pacific Time (PT)(-08:00)
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -105,7 +152,14 @@ export default function DateTimeIntervalSelector() {
         <>
           <div className="space-y-2">
             <Label htmlFor="interval-type">Interval Type</Label>
-            <Select value={intervalType} onValueChange={setIntervalType}>
+            <Select
+              value={intervalType}
+              onValueChange={(value) =>
+                setIntervalType(
+                  value as "minute" | "hour" | "day" | "week" | "month"
+                )
+              }
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select interval type" />
               </SelectTrigger>
@@ -133,6 +187,8 @@ export default function DateTimeIntervalSelector() {
           </div>
         </>
       )}
+
+      <Button onClick={handleSubmit}>Submit</Button>
     </div>
   );
-}
+};

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTheme } from "@/components/theme-provider";
+import { HttpJob } from "../job-config";
 
 const methods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
 
@@ -36,13 +37,18 @@ const sampleJson = JSON.stringify(
   2
 );
 
-interface KeyValuePair {
-  key: string;
-  value: string;
+type KeyValuePair = { key: string; value: string };
+
+interface HttpFormProps {
+  onSubmit: (data: HttpJob) => void;
+  data?: HttpJob;
 }
 
-export function HttpForm() {
+export function HttpForm({ data, onSubmit }: HttpFormProps) {
   const { theme } = useTheme();
+  const [httpMethod, setHttpMethod] =
+    useState<HttpJob["input"]["method"]>("GET");
+  const [url, setUrl] = useState<string>("https://api.example.com/endpoint");
   const [jsonBody, setJsonBody] = useState(sampleJson);
   const [parameters, setParameters] = useState<KeyValuePair[]>([
     { key: "", value: "" },
@@ -77,6 +83,53 @@ export function HttpForm() {
     );
   };
 
+  useEffect(() => {
+    if (data) {
+      setHttpMethod(data.input.method);
+      setUrl(data.input.url);
+      setJsonBody(data.input.body);
+      setParameters(
+        Object.entries(data.input.parameters).map(([key, value]) => ({
+          key,
+          value,
+        }))
+      );
+      setHeaders(
+        Object.entries(data.input.headers).map(([key, value]) => ({
+          key,
+          value,
+        }))
+      );
+    }
+  }, [data]);
+
+  const submitHandler = () => {
+    const parametersObj = parameters.reduce((acc, { key, value }) => {
+      if (key) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as HttpJob["input"]["parameters"]);
+
+    const headersObj = headers.reduce((acc, { key, value }) => {
+      if (key) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as HttpJob["input"]["headers"]);
+
+    onSubmit({
+      key: "http",
+      input: {
+        url,
+        method: httpMethod,
+        parameters: parametersObj,
+        headers: headersObj,
+        body: jsonBody,
+      },
+    });
+  };
+
   return (
     <div
       className={`w-full space-y-4 border p-4 ${
@@ -85,7 +138,12 @@ export function HttpForm() {
     >
       <div className="flex gap-2 items-center justify-between mb-4">
         <div className="flex gap-2 flex-1">
-          <Select defaultValue="GET">
+          <Select
+            defaultValue={httpMethod}
+            onValueChange={(value) => {
+              setHttpMethod(value as HttpJob["input"]["method"]);
+            }}
+          >
             <SelectTrigger
               className={`w-[110px] ${
                 isDarkTheme
@@ -115,7 +173,8 @@ export function HttpForm() {
           </Select>
           <Input
             placeholder="Enter URL"
-            defaultValue="https://api.example.com/endpoint"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
             className={`flex-1 ${
               isDarkTheme
                 ? "bg-zinc-900 border-zinc-800 text-zinc-100"
@@ -384,6 +443,7 @@ export function HttpForm() {
           </ScrollArea>
         </TabsContent>
       </Tabs>
+      <Button onClick={submitHandler} />
     </div>
   );
 }
