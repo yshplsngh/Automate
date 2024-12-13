@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, ChevronRight, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,22 +9,28 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import * as React from "react";
-import { Job, jobConfig, Schedule } from "@/jobs/job-config";
+import { jobConfig, JobData } from "@/jobs/job-config";
 import { AppDropdownWithDescription } from "./AppDropdown";
-import { HttpJob, ScheduleJob, WebhookJob } from "@/jobs/job-config";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 
 interface ConfigureStepModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
+  trigger: boolean;
 }
 
 export function ConfigureStepModal({
   isOpen,
   onClose,
   title,
+  trigger,
 }: ConfigureStepModalProps) {
-  const [job, setJob] = useState<Job | null>(null);
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [jobData, setJobData] = useState<JobData>();
   const [activeTab, setActiveTab] = useState<"setup" | "configure" | "test">(
     "setup"
   );
@@ -32,10 +38,10 @@ export function ConfigureStepModal({
   const [selectedApp, setSelectedApp] = React.useState<
     (typeof jobConfig)[0] | null
   >(null);
-  const [setupData, setSetupData] = useState<any>();
-  const [configData, setConfigData] = useState<
-    HttpJob | ScheduleJob | WebhookJob | null
-  >(null);
+
+  useEffect(() => {
+    console.log(jobData);
+  }, [jobData]);
 
   const handleContinue = () => {
     if (activeTab === "setup") {
@@ -44,6 +50,15 @@ export function ConfigureStepModal({
     } else if (activeTab === "configure") {
       setEnabledTabs((prev) => [...prev, "test"]);
       setActiveTab("test");
+    }
+  };
+
+  const handleDescriptionChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const value = e.target.value;
+    if (value.length <= 200) {
+      setDescription(value);
     }
   };
 
@@ -108,32 +123,46 @@ export function ConfigureStepModal({
               <AppDropdownWithDescription
                 selectedApp={selectedApp}
                 setSelectedApp={setSelectedApp}
+                trigger={trigger}
               />
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter a name for your configuration"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={handleDescriptionChange}
+                  placeholder="Enter a description (max 200 characters)"
+                  maxLength={200}
+                />
+                <p className="text-sm text-gray-500">
+                  {description.length}/200 characters
+                </p>
+              </div>
             </div>
-            {selectedApp &&
-              selectedApp.setupForm &&
-              React.createElement(selectedApp.setupForm, {
-                data: setupData,
-                onSubmit: (data: any) => {
-                  console.log("setupdata::", data);
-                  setSetupData(data);
-                },
-              })}
           </TabsContent>
 
           <TabsContent value="configure" className="p-4">
             {selectedApp &&
               selectedApp.configForm &&
               React.createElement(
-                selectedApp.configForm as React.ComponentType<{
-                  data: any;
-                  onSubmit: (data: any) => void;
+                selectedApp.configForm as unknown as React.ComponentType<{
+                  jobData: JobData;
+                  onSubmit: (data: JobData) => void;
                 }>,
                 {
-                  data: configData,
-                  onSubmit: (data: any) => {
+                  jobData: jobData as JobData,
+                  onSubmit: (data: JobData) => {
                     console.log("configdata::", data);
-                    setConfigData(data);
+                    setJobData(data);
                   },
                 }
               )}

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { Plus, MoreVertical } from "lucide-react";
+import React, { createElement, useEffect, useState } from "react";
+import { Plus, MoreVertical, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { ConfigureStepModal } from "./ConfigureStepModal";
+import { Job, jobConfig } from "@/jobs/job-config";
 
 const Tail = ({
   onClick,
@@ -29,20 +30,12 @@ const Tail = ({
 };
 
 interface StepCardProps {
-  title: string;
-  subtitle: string;
-  icon: React.ReactNode;
-  isConfigured?: boolean;
+  data: Steps;
   showPlus?: boolean;
+  addStep: () => void;
 }
 
-const StepCard: React.FC<StepCardProps> = ({
-  title,
-  subtitle,
-  icon,
-  isConfigured = true,
-  showPlus,
-}) => {
+const StepCard: React.FC<StepCardProps> = ({ data, showPlus, addStep }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCardClick = () => {
@@ -57,14 +50,17 @@ const StepCard: React.FC<StepCardProps> = ({
       >
         <CardHeader className="flex flex-row items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-white rounded-lg">
           <div className="flex items-center space-x-4">
-            <div className="bg-white p-2 rounded-full shadow-sm">{icon}</div>
+            <div className="bg-white p-2 rounded-full shadow-sm">
+              {data.icon}
+            </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-              <p className="text-sm text-gray-500">{subtitle}</p>
+              <h3 className="text-lg font-semibold text-gray-800">
+                {data.title}
+              </h3>
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            {isConfigured && (
+            {data.isConfigured && (
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
             )}
             <Button
@@ -81,55 +77,96 @@ const StepCard: React.FC<StepCardProps> = ({
           </div>
         </CardHeader>
       </Card>
-      <Tail
-        onClick={() => console.log("Adding new step")}
-        showPlus={showPlus}
-      />
+      <Tail onClick={addStep} showPlus={showPlus} />
       <ConfigureStepModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={`Configure ${title}`}
+        title={`Configure ${data.title}`}
+        trigger={data.type === "trigger"}
       />
     </>
   );
 };
 
-export function ZapCard() {
-  const PlaceHolderSteps = [
-    {
-      type: "trigger",
-      title: "Trigger",
-      subtitle: "Set a trigger",
-      icon: "/placeholder.svg?height=24&width=24",
-      isConfigured: true,
-      stepId: 1,
-    },
-    {
-      type: "action",
-      title: "Action",
-      subtitle: "Set an action",
-      icon: "/placeholder.svg?height=24&width=24",
-      isConfigured: true,
-      stepId: 2,
-    },
-  ];
+interface Steps {
+  title: string;
+  type: "trigger" | "action";
+  icon: any;
+  job?: Job;
+  isConfigured: boolean;
+}
+
+interface ZapCardProps {
+  jobs?: Job[];
+}
+
+export function ZapCard({ jobs }: ZapCardProps) {
+  const [steps, setSteps] = useState<Steps[]>([]);
+
+  const addStep = () => {
+    console.log("Adding a new step");
+    setSteps((prev) => [
+      ...prev,
+      {
+        title: "Add a new step",
+        type: "action",
+        icon: createElement(Zap),
+        job: {} as Job,
+        isConfigured: false,
+      },
+    ]);
+  };
+
+  useEffect(() => {
+    if (!jobs || jobs.length === 0) {
+      setSteps([
+        {
+          title: "Add a new trigger",
+          type: "trigger",
+          icon: createElement(Zap),
+          job: {} as Job,
+          isConfigured: false,
+        },
+        {
+          title: "Add a new action",
+          type: "action",
+          icon: createElement(Zap),
+          job: {} as Job,
+          isConfigured: false,
+        },
+      ]);
+      return;
+    }
+    const steps = jobs.map((job) => {
+      return {
+        title: job.name,
+        type: job.type,
+        icon:
+          jobConfig.find((j) => j.key === job.app)?.icon || createElement(Zap),
+        job: job,
+        isConfigured: true,
+      };
+    });
+    if (jobs.length === 1) {
+      steps.push({
+        title: "Add a new step",
+        type: "action",
+        icon: createElement(Zap),
+        job: {} as Job,
+        isConfigured: false,
+      });
+    }
+    setSteps(steps);
+  }, [jobs]);
 
   return (
     <div className="w-[400px] p-4 rounded-xl">
-      {PlaceHolderSteps.map((step, index) => (
+      {steps.map((step, index) => (
         <StepCard
           key={index}
-          title={step.title}
-          subtitle={step.subtitle}
-          icon={
-            <img
-              src={step.icon}
-              alt={`${step.title} icon`}
-              className="h-6 w-6"
-            />
-          }
-          isConfigured={step.isConfigured}
-          showPlus={index === PlaceHolderSteps.length - 1}
+          data={step}
+          showPlus={index === steps.length - 1}
+          addStep={addStep}
         />
       ))}
     </div>

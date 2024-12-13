@@ -6,79 +6,48 @@ import {
 import { HttpForm } from "@/jobs/http/HttpConfigForm";
 import { ScheduleConfig } from "@/jobs/schedule/scheduleConfig";
 import { WebhookJobConfiguration } from "./webhook/WebHookConfig";
+import { createElement } from "react";
 
-export const jobConfig = [
+interface JobConfig {
+  id: number;
+  key: string;
+  name: string;
+  description: string;
+  icon: (className?: string) => JSX.Element;
+  configForm: React.ComponentType<any>;
+  trigger: boolean;
+}
+
+export const jobConfig: JobConfig[] = [
   {
     id: 1,
     key: "http",
-    name: "Http",
+    name: "HTTP",
     description: "Send an HTTP request to a URL",
-    icon: ChevronsLeftRightEllipsis,
+    icon: (className?: string) =>
+      createElement(ChevronsLeftRightEllipsis, { className: className }),
     configForm: HttpForm,
-    setupForm: ScheduleConfig,
-    validateData: (
-      trigger: boolean,
-      configData?: HttpJob,
-      setupdata?: Schedule
-    ) => {
-      if (trigger && !setupdata) {
-        return "Schedule is required for event-triggered jobs";
-      }
-      let t = trigger ? "trigger" : "action";
-      return {
-        trigger: trigger,
-        data: configData,
-        type: t,
-        schedule: setupdata,
-      } as Job;
-    },
+    trigger: false,
   },
   {
     id: 2,
     key: "webhook",
     name: "Webhook",
-    description: "Send a webhook to a URL",
-    icon: Webhook,
+    description: "Create a webhook as a trigger",
+    icon: (className?: string) =>
+      createElement(Webhook, { className: className }),
     configForm: WebhookJobConfiguration,
-    setupForm: undefined,
-    validateData: (trigger: boolean, configData?: WebhookJob): Job | string => {
-      if (!trigger) {
-        return "Webhook jobs must be triggered";
-      }
-      if (!configData || !configData.webhoookUrl) {
-        return "Webhook URL is required.";
-      }
-
-      return {
-        trigger: trigger,
-        data: configData,
-        type: "trigger",
-      } as Job;
-    },
+    trigger: true,
   },
   {
     id: 3,
     key: "schedule",
     name: "Schedule",
     description: "Schedule a job to run at a specific time",
-    icon: CalendarCheck,
+    icon: (className?: string) =>
+      createElement(CalendarCheck, { className: className }),
     configForm: ScheduleConfig,
-    setupForm: undefined,
-    validateData: (trigger: boolean, configData?: Schedule) => {
-      if (!trigger) {
-        return "Schedule jobs must be triggered";
-      }
-      if (!configData) {
-        return "A valid schedule is required for Schedule jobs.";
-      }
-
-      return {
-        trigger: trigger,
-        data: null,
-        type: "trigger",
-        schedule: configData,
-      } as Job;
-    },
+    trigger: true,
   },
 ];
 
@@ -125,18 +94,19 @@ export type WebhookJob = {
     data: string;
     type: "json" | "string" | "number" | "boolean";
   }>;
-  trigger: true;
 };
 
 export type ScheduleJob = {
   key: "schedule";
   schedule: Schedule;
-  trigger: true;
 };
+
+export type JobData = HttpJob | WebhookJob | ScheduleJob;
 
 export type Job = {
   type: "trigger" | "action";
-  data: HttpJob | WebhookJob | ScheduleJob | null;
-  schedule?: Schedule;
-  trigger?: boolean;
+  name: string;
+  descripton?: string;
+  app: "http" | "webhook" | "schedule";
+  data: JobData;
 };

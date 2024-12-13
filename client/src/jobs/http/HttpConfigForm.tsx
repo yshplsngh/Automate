@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTheme } from "@/components/theme-provider";
-import { HttpJob } from "../job-config";
+import { HttpJob, JobData } from "../job-config";
 
 const methods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
 
@@ -40,12 +40,13 @@ const sampleJson = JSON.stringify(
 type KeyValuePair = { key: string; value: string };
 
 interface HttpFormProps {
-  onSubmit: (data: HttpJob) => void;
-  data?: HttpJob;
+  onSubmit: (data: JobData) => void;
+  jobData: JobData | null;
 }
 
-export function HttpForm({ data, onSubmit }: HttpFormProps) {
+export function HttpForm({ jobData, onSubmit }: HttpFormProps) {
   const { theme } = useTheme();
+  const isDarkTheme = theme === "dark";
   const [httpMethod, setHttpMethod] =
     useState<HttpJob["input"]["method"]>("GET");
   const [url, setUrl] = useState<string>("https://api.example.com/endpoint");
@@ -56,8 +57,6 @@ export function HttpForm({ data, onSubmit }: HttpFormProps) {
   const [headers, setHeaders] = useState<KeyValuePair[]>([
     { key: "", value: "" },
   ]);
-
-  const isDarkTheme = theme === "dark";
 
   const addKeyValuePair = (
     setter: React.Dispatch<React.SetStateAction<KeyValuePair[]>>
@@ -84,6 +83,8 @@ export function HttpForm({ data, onSubmit }: HttpFormProps) {
   };
 
   useEffect(() => {
+    if (!jobData) return;
+    const data = jobData as HttpJob;
     if (data) {
       setHttpMethod(data.input.method);
       setUrl(data.input.url);
@@ -101,7 +102,7 @@ export function HttpForm({ data, onSubmit }: HttpFormProps) {
         }))
       );
     }
-  }, [data]);
+  }, [jobData]);
 
   const submitHandler = () => {
     const parametersObj = parameters.reduce((acc, { key, value }) => {
@@ -117,8 +118,7 @@ export function HttpForm({ data, onSubmit }: HttpFormProps) {
       }
       return acc;
     }, {} as HttpJob["input"]["headers"]);
-
-    onSubmit({
+    const httpJob = {
       key: "http",
       input: {
         url,
@@ -127,7 +127,11 @@ export function HttpForm({ data, onSubmit }: HttpFormProps) {
         headers: headersObj,
         body: jsonBody,
       },
-    });
+    } as HttpJob;
+
+    console.log("httpform job::", jobData);
+
+    onSubmit(httpJob);
   };
 
   return (
@@ -443,7 +447,8 @@ export function HttpForm({ data, onSubmit }: HttpFormProps) {
           </ScrollArea>
         </TabsContent>
       </Tabs>
-      <Button onClick={submitHandler} />
+
+      <Button onClick={submitHandler}>Submit</Button>
     </div>
   );
 }

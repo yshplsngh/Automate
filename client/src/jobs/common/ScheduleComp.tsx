@@ -1,13 +1,18 @@
-import { useEffect, useState } from "react";
-import { format, parseISO, set } from "date-fns";
+import React from "react";
+
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon, Clock } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -15,73 +20,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { JobData, Schedule, ScheduleJob } from "../job-config";
-import { CalendarIcon, Clock } from "lucide-react";
 
-interface ScheduleConfigProps {
-  jobData?: JobData;
-  onSubmit: (value: JobData) => void;
+interface ScheduleComponentProps {
+  isDateTimeMode: boolean;
+  setIsDateTimeMode: (value: boolean) => void;
+  date: Date | undefined;
+  setDate: (value: Date | undefined) => void;
+  time: string;
+  setTime: (value: string) => void;
+  timezone: string;
+  setTimezone: (value: string) => void;
+  intervalType: "minute" | "hour" | "day" | "week" | "month";
+  setIntervalType: (
+    value: "minute" | "hour" | "day" | "week" | "month"
+  ) => void;
+  intervalAmount: number;
+  setIntervalAmount: (value: number) => void;
+  handleSubmit?: () => void;
 }
 
-export const ScheduleConfig = ({ jobData, onSubmit }: ScheduleConfigProps) => {
-  const [isDateTimeMode, setIsDateTimeMode] = useState<boolean>(true);
-  const [date, setDate] = useState<Date>();
-  const [time, setTime] = useState<string>("12:00");
-  const [timezone, setTimezone] = useState<string>("UTC");
-  const [intervalType, setIntervalType] = useState<
-    "minute" | "hour" | "day" | "week" | "month"
-  >("minute");
-  const [intervalAmount, setIntervalAmount] = useState<number>(10);
-
-  // Parse the ISO string on load
-  useEffect(() => {
-    if (!jobData) return;
-    const data = jobData as ScheduleJob;
-    if (data?.schedule.fixedTime?.dateTime) {
-      const parsedDate = parseISO(data.schedule.fixedTime.dateTime);
-      setDate(parsedDate);
-      setTime(format(parsedDate, "HH:mm"));
-      const timeZoneMatch =
-        data.schedule.fixedTime.dateTime.match(/([+-]\d{2}:\d{2}|Z)$/);
-      setTimezone(timeZoneMatch?.[0] || "UTC");
-    }
-  }, [jobData]);
-
-  const handleSubmit = () => {
-    if (isDateTimeMode && date) {
-      const [hours, minutes] = time.split(":").map(Number);
-      const updatedDate = set(date, { hours, minutes });
-      const isoWithTimezone = `${
-        updatedDate.toISOString().split("Z")[0]
-      }${timezone}`;
-      const schedule = {
-        type: "fixed",
-        fixedTime: { dateTime: isoWithTimezone },
-      } as Schedule;
-      const ScheduleJob = {
-        key: "schedule",
-        schedule,
-      } as ScheduleJob;
-      onSubmit(ScheduleJob);
-    } else {
-      const schedule = {
-        type: "interval",
-        interval: {
-          unit: intervalType,
-          value: intervalAmount,
-        },
-      } as Schedule;
-      const ScheduleJob = {
-        key: "schedule",
-        schedule,
-      } as ScheduleJob;
-      onSubmit(ScheduleJob);
-    }
-  };
-
+const ScheduleComponent: React.FC<ScheduleComponentProps> = ({
+  isDateTimeMode,
+  setIsDateTimeMode,
+  date,
+  setDate,
+  time,
+  setTime,
+  timezone,
+  setTimezone,
+  intervalType,
+  setIntervalType,
+  intervalAmount,
+  setIntervalAmount,
+}) => {
   return (
     <div className="space-y-4 w-full p-4 bg-inherit rounded-lg shadow">
       <div className="flex items-center justify-between w-full">
@@ -114,8 +85,8 @@ export const ScheduleConfig = ({ jobData, onSubmit }: ScheduleConfigProps) => {
                 <PopoverContent className="w-auto p-0">
                   <Calendar
                     mode="single"
-                    selected={date}
-                    onSelect={setDate}
+                    selected={date || undefined}
+                    onSelect={(value) => setDate(value ?? undefined)}
                     initialFocus
                   />
                 </PopoverContent>
@@ -202,8 +173,8 @@ export const ScheduleConfig = ({ jobData, onSubmit }: ScheduleConfigProps) => {
           </div>
         </>
       )}
-
-      <Button onClick={handleSubmit}>Submit</Button>
     </div>
   );
 };
+
+export default ScheduleComponent;

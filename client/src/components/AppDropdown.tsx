@@ -12,11 +12,13 @@ import { ChevronDown } from "lucide-react";
 export function AppDropdownWithDescription({
   selectedApp,
   setSelectedApp,
+  trigger,
 }: {
   selectedApp: (typeof jobConfig)[0] | null;
   setSelectedApp: React.Dispatch<
     React.SetStateAction<(typeof jobConfig)[0] | null>
   >;
+  trigger: boolean;
 }): JSX.Element {
   return (
     <div className="w-full max-w-[450px] space-y-1">
@@ -36,10 +38,8 @@ export function AppDropdownWithDescription({
           >
             {selectedApp ? (
               <div className="flex items-center gap-2">
-                {React.createElement(selectedApp.icon, {
-                  className: "h-4 w-4 shrink-0 text-muted-foreground",
-                })}
-                <span>{selectedApp.name}</span>
+                {selectedApp.icon("h-5 w-5 shrink-0")}
+                {selectedApp.name}
               </div>
             ) : (
               <span className="text-muted-foreground">Select app...</span>
@@ -48,21 +48,23 @@ export function AppDropdownWithDescription({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-[450px] bg-gray-50">
-          {jobConfig.map((app) => (
-            <DropdownMenuItem
-              key={app.id}
-              onSelect={() => setSelectedApp(app)}
-              className="flex items-start gap-3 p-2 cursor-pointer hover:bg-slate-200"
-            >
-              <app.icon className="h-5 w-5 shrink-0 mt-0.5 text-muted-foreground" />
-              <div className="flex flex-col">
-                <span className="font-medium">{app.description}</span>
-                <span className="text-sm text-muted-foreground">
-                  {app.description}
-                </span>
-              </div>
-            </DropdownMenuItem>
-          ))}
+          {jobConfig
+            .filter((app) => !(trigger && app.trigger !== trigger))
+            .map((app) => (
+              <DropdownMenuItem
+                key={app.id}
+                onSelect={() => setSelectedApp(app)}
+                className="flex items-start gap-3 p-2 cursor-pointer hover:bg-slate-200"
+              >
+                {app.icon("h-5 w-5 shrink-0 mt-0.5 text-muted-foreground")}
+                <div className="flex flex-col">
+                  <span className="font-medium">{app.name}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {app.description}
+                  </span>
+                </div>
+              </DropdownMenuItem>
+            ))}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
