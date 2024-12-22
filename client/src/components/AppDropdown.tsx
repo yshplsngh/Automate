@@ -49,7 +49,9 @@ export function AppDropdownWithDescription({
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-[450px] bg-gray-50">
           {jobConfig
-            .filter((app) => !(trigger && app.trigger !== trigger))
+            .filter((app) =>
+              trigger ? app.trigger == true : app.trigger == false
+            )
             .map((app) => (
               <DropdownMenuItem
                 key={app.id}

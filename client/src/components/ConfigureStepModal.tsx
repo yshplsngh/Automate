@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Check, ChevronRight, Mail } from "lucide-react";
+import { useState, useEffect, createElement } from "react";
+import { Check, ChevronRight, Mail, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,7 +8,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import * as React from "react";
 import { jobConfig, JobData } from "@/jobs/job-config";
 import { AppDropdownWithDescription } from "./AppDropdown";
 import { Label } from "./ui/label";
@@ -35,9 +34,9 @@ export function ConfigureStepModal({
     "setup"
   );
   const [enabledTabs, setEnabledTabs] = useState<string[]>(["setup"]);
-  const [selectedApp, setSelectedApp] = React.useState<
-    (typeof jobConfig)[0] | null
-  >(null);
+  const [selectedApp, setSelectedApp] = useState<(typeof jobConfig)[0] | null>(
+    null
+  );
 
   useEffect(() => {
     console.log(jobData);
@@ -69,7 +68,11 @@ export function ConfigureStepModal({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-orange-100 rounded">
-                <Mail className="h-5 w-5 text-orange-600" />
+                {selectedApp ? (
+                  selectedApp?.icon("h-5 w-5 text-orange-600")
+                ) : (
+                  <Zap className="h-5 w-5 text-orange-600" />
+                )}
               </div>
               <DialogTitle className="text-lg font-semibold">
                 {title}
@@ -153,7 +156,7 @@ export function ConfigureStepModal({
           <TabsContent value="configure" className="p-4">
             {selectedApp &&
               selectedApp.configForm &&
-              React.createElement(
+              createElement(
                 selectedApp.configForm as unknown as React.ComponentType<{
                   jobData: JobData;
                   onSubmit: (data: JobData) => void;

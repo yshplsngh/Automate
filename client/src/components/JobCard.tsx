@@ -50,7 +50,7 @@ const StepCard: React.FC<StepCardProps> = ({ data, showPlus, addStep }) => {
       >
         <CardHeader className="flex flex-row items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-white rounded-lg">
           <div className="flex items-center space-x-4">
-            <div className="bg-white p-2 rounded-full shadow-sm">
+            <div className="bg-white p-2 rounded-full shadow-sm dark:text-black">
               {data.icon}
             </div>
             <div>
@@ -81,7 +81,7 @@ const StepCard: React.FC<StepCardProps> = ({ data, showPlus, addStep }) => {
       <ConfigureStepModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={`Configure ${data.title}`}
+        title={`${data.title}`}
         trigger={data.type === "trigger"}
       />
     </>

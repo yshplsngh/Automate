@@ -30,7 +30,7 @@ export const ScheduleConfig = ({ jobData, onSubmit }: ScheduleConfigProps) => {
   const [isDateTimeMode, setIsDateTimeMode] = useState<boolean>(true);
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState<string>("12:00");
-  const [timezone, setTimezone] = useState<string>("UTC");
+  const [timezone, setTimezone] = useState<string>("Z");
   const [intervalType, setIntervalType] = useState<
     "minute" | "hour" | "day" | "week" | "month"
   >("minute");
