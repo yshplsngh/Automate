@@ -105,6 +105,7 @@ export type JobData = HttpJob | WebhookJob | ScheduleJob;
 
 export type Job = {
   type: "trigger" | "action";
+  step: number;
   name: string;
   descripton?: string;
   app: "http" | "webhook" | "schedule";

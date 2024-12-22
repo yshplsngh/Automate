@@ -56,7 +56,7 @@ export function AppDropdownWithDescription({
               <DropdownMenuItem
                 key={app.id}
                 onSelect={() => setSelectedApp(app)}
-                className="flex items-start gap-3 p-2 cursor-pointer hover:bg-slate-200"
+                className="flex items-start gap-3 p-2 cursor-pointer hover:bg-slate-200 dark:text-white dark:bg-black dark:hover:bg-slate-900"
               >
                 {app.icon("h-5 w-5 shrink-0 mt-0.5 text-muted-foreground")}
                 <div className="flex flex-col">

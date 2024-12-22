@@ -19,6 +19,7 @@ interface ConfigureStepModalProps {
   onClose: () => void;
   title: string;
   trigger: boolean;
+  stepNumber: number;
 }
 
 export function ConfigureStepModal({
@@ -26,6 +27,7 @@ export function ConfigureStepModal({
   onClose,
   title,
   trigger,
+  stepNumber
 }: ConfigureStepModalProps) {
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");

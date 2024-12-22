@@ -33,9 +33,10 @@ interface StepCardProps {
   data: Steps;
   showPlus?: boolean;
   addStep: () => void;
+  stepNumber: number;
 }
 
-const StepCard: React.FC<StepCardProps> = ({ data, showPlus, addStep }) => {
+const StepCard: React.FC<StepCardProps> = ({ data, showPlus, addStep, stepNumber }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCardClick = () => {
@@ -83,6 +84,7 @@ const StepCard: React.FC<StepCardProps> = ({ data, showPlus, addStep }) => {
         onClose={() => setIsModalOpen(false)}
         title={`${data.title}`}
         trigger={data.type === "trigger"}
+        stepNumber={stepNumber}
       />
     </>
   );
@@ -92,6 +94,7 @@ interface Steps {
   title: string;
   type: "trigger" | "action";
   icon: any;
+  stepNumber: number;
   job?: Job;
   isConfigured: boolean;
 }
@@ -101,7 +104,7 @@ interface ZapCardProps {
 }
 
 export function ZapCard({ jobs }: ZapCardProps) {
-  const [steps, setSteps] = useState<Steps[]>([]);
+  const [steps, setSteps] = useState<Steps[]>([]); // Fix type annotation here
 
   const addStep = () => {
     console.log("Adding a new step");
@@ -110,6 +113,7 @@ export function ZapCard({ jobs }: ZapCardProps) {
       {
         title: "Add a new step",
         type: "action",
+        stepNumber: prev.length + 1, 
         icon: createElement(Zap),
         job: {} as Job,
         isConfigured: false,
@@ -123,6 +127,7 @@ export function ZapCard({ jobs }: ZapCardProps) {
         {
           title: "Add a new trigger",
           type: "trigger",
+          stepNumber: 1,
           icon: createElement(Zap),
           job: {} as Job,
           isConfigured: false,
@@ -130,6 +135,7 @@ export function ZapCard({ jobs }: ZapCardProps) {
         {
           title: "Add a new action",
           type: "action",
+          stepNumber: 2,
           icon: createElement(Zap),
           job: {} as Job,
           isConfigured: false,
@@ -137,26 +143,29 @@ export function ZapCard({ jobs }: ZapCardProps) {
       ]);
       return;
     }
-    const steps = jobs.map((job) => {
-      return {
-        title: job.name,
-        type: job.type,
-        icon:
-          jobConfig.find((j) => j.key === job.app)?.icon || createElement(Zap),
-        job: job,
-        isConfigured: true,
-      };
-    });
+
+    const mappedSteps: Steps[] = jobs.map((job, index) => ({
+      title: job.name,
+      type: job.type,
+      stepNumber: index + 1, 
+      icon:
+        jobConfig.find((j) => j.key === job.app)?.icon || createElement(Zap),
+      job,
+      isConfigured: true,
+    }));
+
     if (jobs.length === 1) {
-      steps.push({
+      mappedSteps.push({
         title: "Add a new step",
         type: "action",
+        stepNumber: jobs.length + 1,
         icon: createElement(Zap),
         job: {} as Job,
         isConfigured: false,
       });
     }
-    setSteps(steps);
+
+    setSteps(mappedSteps); 
   }, [jobs]);
 
   return (
@@ -167,6 +176,7 @@ export function ZapCard({ jobs }: ZapCardProps) {
           data={step}
           showPlus={index === steps.length - 1}
           addStep={addStep}
+          stepNumber={step.stepNumber}
         />
       ))}
     </div>
