@@ -51,7 +51,7 @@ export const jobConfig: JobConfig[] = [
   },
 ];
 
-export type Schedule = {
+export interface Schedule {
   type: "fixed" | "interval";
   fixedTime?: {
     dateTime: string; // ISO 8601 format: YYYY-MM-DDTHH:mm:ssZ or YYYY-MM-DDTHH:mm:ss±hh:mm
@@ -60,7 +60,7 @@ export type Schedule = {
     unit: "minute" | "hour" | "day" | "week" | "month";
     value: number;
   };
-};
+}
 
 type HttpMethods =
   | "GET"
@@ -71,7 +71,7 @@ type HttpMethods =
   | "OPTIONS"
   | "HEAD";
 
-export type HttpJob = {
+export interface HttpJob {
   key: "http";
   input: {
     url: string;
@@ -85,29 +85,35 @@ export type HttpJob = {
     headers: Record<string, string>;
     body: string;
   };
-};
+}
 
-export type WebhookJob = {
+export interface WebhookJob {
   key: "webhook";
   webhoookUrl: string;
   output?: Array<{
     data: string;
     type: "json" | "string" | "number" | "boolean";
   }>;
-};
+}
 
-export type ScheduleJob = {
+export interface ScheduleJob {
   key: "schedule";
   schedule: Schedule;
-};
+}
 
 export type JobData = HttpJob | WebhookJob | ScheduleJob;
 
-export type Job = {
+export interface Job {
+  workflowId: string;
   type: "trigger" | "action";
   step: number;
   name: string;
   descripton?: string;
   app: "http" | "webhook" | "schedule";
   data: JobData;
-};
+}
+
+export interface TypeWorkFlow {
+  workflowId: string;
+  jobs: Job[];
+}

@@ -1,4 +1,4 @@
-import React, { createElement, useEffect, useState } from "react";
+import { createElement, useEffect, useState, FC } from "react";
 import { Plus, MoreVertical, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -34,9 +34,16 @@ interface StepCardProps {
   showPlus?: boolean;
   addStep: () => void;
   stepNumber: number;
+  workflowId: string;
 }
 
-const StepCard: React.FC<StepCardProps> = ({ data, showPlus, addStep, stepNumber }) => {
+const StepCard: FC<StepCardProps> = ({
+  data,
+  showPlus,
+  addStep,
+  stepNumber,
+  workflowId,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCardClick = () => {
@@ -85,6 +92,7 @@ const StepCard: React.FC<StepCardProps> = ({ data, showPlus, addStep, stepNumber
         title={`${data.title}`}
         trigger={data.type === "trigger"}
         stepNumber={stepNumber}
+        workflowId={workflowId}
       />
     </>
   );
@@ -101,9 +109,10 @@ interface Steps {
 
 interface ZapCardProps {
   jobs?: Job[];
+  workflowId: string;
 }
 
-export function ZapCard({ jobs }: ZapCardProps) {
+export function ZapCard({ jobs, workflowId }: ZapCardProps) {
   const [steps, setSteps] = useState<Steps[]>([]); // Fix type annotation here
 
   const addStep = () => {
@@ -113,7 +122,7 @@ export function ZapCard({ jobs }: ZapCardProps) {
       {
         title: "Add a new step",
         type: "action",
-        stepNumber: prev.length + 1, 
+        stepNumber: prev.length + 1,
         icon: createElement(Zap),
         job: {} as Job,
         isConfigured: false,
@@ -147,7 +156,7 @@ export function ZapCard({ jobs }: ZapCardProps) {
     const mappedSteps: Steps[] = jobs.map((job, index) => ({
       title: job.name,
       type: job.type,
-      stepNumber: index + 1, 
+      stepNumber: index + 1,
       icon:
         jobConfig.find((j) => j.key === job.app)?.icon || createElement(Zap),
       job,
@@ -165,7 +174,7 @@ export function ZapCard({ jobs }: ZapCardProps) {
       });
     }
 
-    setSteps(mappedSteps); 
+    setSteps(mappedSteps);
   }, [jobs]);
 
   return (
@@ -177,6 +186,7 @@ export function ZapCard({ jobs }: ZapCardProps) {
           showPlus={index === steps.length - 1}
           addStep={addStep}
           stepNumber={step.stepNumber}
+          workflowId={workflowId}
         />
       ))}
     </div>

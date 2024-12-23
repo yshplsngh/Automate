@@ -28,7 +28,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route path="/workflow/:workflowId" element={<Layout />}>
           <Route index element={<Canvas />} />
         </Route>
       </Routes>

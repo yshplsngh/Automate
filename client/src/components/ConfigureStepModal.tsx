@@ -1,5 +1,5 @@
 import { useState, useEffect, createElement } from "react";
-import { Check, ChevronRight, Mail, Zap } from "lucide-react";
+import { Check, ChevronRight, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,6 +20,7 @@ interface ConfigureStepModalProps {
   title: string;
   trigger: boolean;
   stepNumber: number;
+  workflowId: string;
 }
 
 export function ConfigureStepModal({
@@ -27,7 +28,8 @@ export function ConfigureStepModal({
   onClose,
   title,
   trigger,
-  stepNumber
+  stepNumber,
+  workflowId,
 }: ConfigureStepModalProps) {
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
