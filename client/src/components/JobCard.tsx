@@ -3,7 +3,7 @@ import { Plus, MoreVertical, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { ConfigureStepModal } from "./ConfigureStepModal";
-import { Job, jobConfig } from "@/jobs/job-config";
+import { Job, jobConfig, TypeWorkFlow } from "@/jobs/job-config";
 
 const Tail = ({
   onClick,
@@ -108,74 +108,56 @@ interface Steps {
 }
 
 interface ZapCardProps {
-  jobs?: Job[];
-  workflowId: string;
+  workflow: TypeWorkFlow;
 }
 
-export function ZapCard({ jobs, workflowId }: ZapCardProps) {
-  const [steps, setSteps] = useState<Steps[]>([]); // Fix type annotation here
+export function ZapCard({ workflow }: ZapCardProps) {
+  const [steps, setSteps] = useState<Steps[]>([]);
+
+  const createStep = (
+    type: "trigger" | "action",
+    stepNumber: number,
+    isConfigured = false
+  ): Steps => ({
+    title: `Add a new ${type}`,
+    type,
+    stepNumber,
+    icon: createElement(Zap, { className: "h-4 w-4" }),
+    isConfigured,
+  });
 
   const addStep = () => {
-    console.log("Adding a new step");
-    setSteps((prev) => [
-      ...prev,
-      {
-        title: "Add a new step",
-        type: "action",
-        stepNumber: prev.length + 1,
-        icon: createElement(Zap),
-        job: {} as Job,
-        isConfigured: false,
-      },
-    ]);
+    setSteps((prevSteps) => {
+      const newStepNumber = prevSteps.length + 1;
+      return [...prevSteps, createStep("action", newStepNumber)];
+    });
   };
 
   useEffect(() => {
-    if (!jobs || jobs.length === 0) {
-      setSteps([
-        {
-          title: "Add a new trigger",
-          type: "trigger",
-          stepNumber: 1,
-          icon: createElement(Zap),
-          job: {} as Job,
-          isConfigured: false,
-        },
-        {
-          title: "Add a new action",
-          type: "action",
-          stepNumber: 2,
-          icon: createElement(Zap),
-          job: {} as Job,
-          isConfigured: false,
-        },
-      ]);
+    if (!workflow.jobs || workflow.jobs.length === 0) {
+      setSteps([createStep("trigger", 1), createStep("action", 2)]);
       return;
     }
 
-    const mappedSteps: Steps[] = jobs.map((job, index) => ({
-      title: job.name,
+    console.log("workflow-zapcard-job::", workflow);
+
+    const mappedSteps: Steps[] = workflow.jobs.map((job) => ({
+      title: job.name ? job.name : job.app,
       type: job.type,
-      stepNumber: index + 1,
+      stepNumber: job.step,
       icon:
-        jobConfig.find((j) => j.key === job.app)?.icon || createElement(Zap),
+        jobConfig.find((j) => j.app === job.app)?.icon("h-4 w-4") ||
+        createElement(Zap, { className: "h-4 w-4" }),
       job,
       isConfigured: true,
     }));
 
-    if (jobs.length === 1) {
-      mappedSteps.push({
-        title: "Add a new step",
-        type: "action",
-        stepNumber: jobs.length + 1,
-        icon: createElement(Zap),
-        job: {} as Job,
-        isConfigured: false,
-      });
+    if (mappedSteps.length === 1) {
+      mappedSteps.push(createStep("action", mappedSteps.length + 1));
     }
-
+    console.log("mappedSteps::", mappedSteps);
     setSteps(mappedSteps);
-  }, [jobs]);
+  }, [workflow]);
 
   return (
     <div className="w-[400px] p-4 rounded-xl">
@@ -186,7 +168,7 @@ export function ZapCard({ jobs, workflowId }: ZapCardProps) {
           showPlus={index === steps.length - 1}
           addStep={addStep}
           stepNumber={step.stepNumber}
-          workflowId={workflowId}
+          workflowId={workflow.workflowId}
         />
       ))}
     </div>

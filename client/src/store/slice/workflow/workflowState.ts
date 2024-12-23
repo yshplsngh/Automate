@@ -36,7 +36,7 @@ export const workflowState = createSlice({
       const index = state.workflows.findIndex(
         (workflow) => workflow.workflowId === action.payload.workflowId
       );
-      state.workflows[index].jobs[action.payload.step] = action.payload;
+      state.workflows[index].jobs[action.payload.step - 1] = action.payload;
     },
     deleteJob: (state, action: PayloadAction<Job>) => {
       const index = state.workflows.findIndex(

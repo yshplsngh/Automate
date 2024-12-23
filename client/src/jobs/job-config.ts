@@ -10,7 +10,7 @@ import { createElement } from "react";
 
 interface JobConfig {
   id: number;
-  key: string;
+  app: "http" | "webhook" | "schedule";
   name: string;
   description: string;
   icon: (className?: string) => JSX.Element;
@@ -21,17 +21,19 @@ interface JobConfig {
 export const jobConfig: JobConfig[] = [
   {
     id: 1,
-    key: "http",
+    app: "http",
     name: "HTTP",
     description: "Send an HTTP request to a URL",
     icon: (className?: string) =>
-      createElement(ChevronsLeftRightEllipsis, { className: className }),
+      createElement(ChevronsLeftRightEllipsis, {
+        className: className ? className : "w-4 h-4",
+      }),
     configForm: HttpForm,
     trigger: false,
   },
   {
     id: 2,
-    key: "webhook",
+    app: "webhook",
     name: "Webhook",
     description: "Create a webhook as a trigger",
     icon: (className?: string) =>
@@ -41,7 +43,7 @@ export const jobConfig: JobConfig[] = [
   },
   {
     id: 3,
-    key: "schedule",
+    app: "schedule",
     name: "Schedule",
     description: "Schedule a job to run at a specific time",
     icon: (className?: string) =>

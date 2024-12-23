@@ -8,11 +8,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { jobConfig, JobData } from "@/jobs/job-config";
+import { Job, jobConfig, JobData } from "@/jobs/job-config";
 import { AppDropdownWithDescription } from "./AppDropdown";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
+import { updateJob } from "@/store/slice/workflow";
+import { useDispatch } from "react-redux";
 
 interface ConfigureStepModalProps {
   isOpen: boolean;
@@ -31,6 +33,7 @@ export function ConfigureStepModal({
   stepNumber,
   workflowId,
 }: ConfigureStepModalProps) {
+  const dispatch = useDispatch();
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [jobData, setJobData] = useState<JobData>();
@@ -41,6 +44,17 @@ export function ConfigureStepModal({
   const [selectedApp, setSelectedApp] = useState<(typeof jobConfig)[0] | null>(
     null
   );
+  const handleJobDataChange = () => {
+    const job: Job = {
+      step: stepNumber,
+      workflowId: workflowId,
+      data: jobData as JobData,
+      type: trigger ? "trigger" : "action",
+      name: name,
+      app: selectedApp?.app as "http" | "webhook" | "schedule",
+    };
+    dispatch(updateJob(job));
+  };
 
   useEffect(() => {
     console.log(jobData);
@@ -53,6 +67,9 @@ export function ConfigureStepModal({
     } else if (activeTab === "configure") {
       setEnabledTabs((prev) => [...prev, "test"]);
       setActiveTab("test");
+    } else {
+      handleJobDataChange();
+      onClose();
     }
   };
 
@@ -175,25 +192,21 @@ export function ConfigureStepModal({
               )}
           </TabsContent>
           <TabsContent value="test" className="p-4">
-            <h3 className="text-lg font-semibold mb-4">
-              Test your configuration
-            </h3>
-            <p className="mb-4">
-              Send a test email to verify your setup is working correctly.
-            </p>
-            <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
-              Send Test Email
-            </Button>
+            <div className="space-y-4">
+              <Label>Job Configuration Data</Label>
+              <pre className="p-4 bg-slate-100 dark:bg-zinc-800 rounded-lg overflow-auto max-h-[400px]">
+                {JSON.stringify(jobData, null, 2)}
+              </pre>
+            </div>
           </TabsContent>
         </Tabs>
 
         <div className="p-4 mt-auto">
           <Button
-            onClick={handleContinue}
-            disabled={activeTab === "test"} // Disable "Continue" on the last tab
+            onClick={handleContinue} // Disable "Continue" on the last tab
             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
           >
-            {activeTab === "test" ? "Finish" : "Continue"}
+            {activeTab === "test" ? "Save" : "Continue"}
           </Button>
         </div>
       </DialogContent>

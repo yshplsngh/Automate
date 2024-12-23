@@ -14,7 +14,7 @@ export function ReadOnlyInput({ value, label }: ReadOnlyInputProps) {
   const handleCopy = () => {
     if (inputRef.current) {
       inputRef.current.select();
-      document.execCommand("copy");
+      navigator.clipboard.writeText(inputRef.current.value);
     }
   };
 
