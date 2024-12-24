@@ -6,8 +6,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SidebarTrigger } from "./ui/sidebar";
-import { ModeToggle } from "./mode-toggle";
 import { Input } from "./ui/input";
 
 interface TopBarProps {
@@ -17,12 +15,7 @@ interface TopBarProps {
 
 export function TopBar({ workflowTitle, setWorkflowTitle }: TopBarProps) {
   return (
-    <div className="flex h-12 items-center justify-between border-b bg-background px-4">
-      <div className="flex items-center gap-2">
-        <SidebarTrigger />
-        <ModeToggle />
-      </div>
-
+    <div className="flex h-12 items-center justify-center border-b bg-background px-4">
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2 text-foreground">
           <div className="flex items-center gap-2">
@@ -45,7 +38,7 @@ export function TopBar({ workflowTitle, setWorkflowTitle }: TopBarProps) {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 absolute top-0 right-0">
         <span className="text-sm text-foreground">110%</span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

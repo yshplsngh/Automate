@@ -1,8 +1,17 @@
-import { Calendar, Home, Search, Settings, Workflow,History } from "lucide-react";
+import {
+  Home,
+  Search,
+  Settings,
+  Workflow,
+  History,
+  LogIn,
+  UserPlus,
+} from "lucide-react";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -10,12 +19,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Separator } from "./ui/separator";
+import { Button } from "./ui/button";
 
 // Menu items.
 const items = [
   {
     title: "Home",
-    url: "#",
+    url: "/",
     icon: Home,
   },
   {
@@ -62,6 +73,31 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="">
+        <Separator />
+        <div className="flex flex-col space-y-2 mb-2">
+          <Button
+            variant="outline"
+            className="w-full justify-start dark:bg-neutral-800"
+            asChild
+          >
+            <a href="/login">
+              <LogIn className="mr-2 h-4 w-4" />
+              Log In
+            </a>
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-start dark:bg-neutral-800"
+            asChild
+          >
+            <a href="/signup">
+              <UserPlus className="mr-2 h-4 w-4" />
+              Sign Up
+            </a>
+          </Button>
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }
