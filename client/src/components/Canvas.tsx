@@ -13,6 +13,8 @@ export function Canvas() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [workflow, setWorkflow] = useState<TypeWorkFlow | null>(null);
+  const [workflowTitle, setWorkflowTitle] =
+    useState<string>("Untitled Workflow");
 
   useEffect(() => {
     if (workflowId) {
@@ -43,7 +45,10 @@ export function Canvas() {
 
   return (
     <>
-      <TopBar />
+      <TopBar
+        workflowTitle={workflowTitle}
+        setWorkflowTitle={setWorkflowTitle}
+      />
       <div className="flex flex-col items-center justify-center w-full h-full bg-slate-300 dark:bg-zinc-800">
         {workflow && <ZapCard workflow={workflow} />}
       </div>

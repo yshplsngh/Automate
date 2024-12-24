@@ -22,6 +22,11 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+/* Disable outline for buttons */
+button:focus {
+  outline: none;
+  box-shadow: none;
+}
 
 @layer base {
   :root {

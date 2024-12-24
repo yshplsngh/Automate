@@ -1,6 +1,5 @@
 import { HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,8 +8,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "./ui/sidebar";
 import { ModeToggle } from "./mode-toggle";
+import { Input } from "./ui/input";
 
-export function TopBar() {
+interface TopBarProps {
+  workflowTitle: string;
+  setWorkflowTitle: (title: string) => void;
+}
+
+export function TopBar({ workflowTitle, setWorkflowTitle }: TopBarProps) {
   return (
     <div className="flex h-12 items-center justify-between border-b bg-background px-4">
       <div className="flex items-center gap-2">
@@ -20,13 +25,15 @@ export function TopBar() {
 
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2 text-foreground">
-          <span className="text-sm">Testing </span>
-          <Separator orientation="vertical" className="h-4 bg-muted" />
           <div className="flex items-center gap-2">
             <div className="flex h-5 w-5 items-center justify-center rounded bg-emerald-600 text-xs font-medium">
-              T
+              {workflowTitle.slice(0, 1).toUpperCase()}
             </div>
-            <span className="text-sm">Untitled Zap</span>
+            <Input
+              value={workflowTitle}
+              onChange={(e) => setWorkflowTitle(e.target.value)}
+              className="focus-visible:ring-transparent"
+            />
           </div>
           <Button
             variant="outline"
@@ -45,7 +52,7 @@ export function TopBar() {
             <Button
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground focus-visible:ring-transparent"
             >
               <HelpCircle className="h-5 w-5" />
             </Button>

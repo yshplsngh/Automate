@@ -25,6 +25,10 @@ interface ConfigureStepModalProps {
   workflowId: string;
 }
 
+interface ChildRef {
+  submitHandler: () => JobData;
+}
+
 export function ConfigureStepModal({
   isOpen,
   onClose,
@@ -34,7 +38,7 @@ export function ConfigureStepModal({
   workflowId,
 }: ConfigureStepModalProps) {
   const dispatch = useDispatch();
-  const childref = useRef()
+  const childref = useRef<ChildRef | null>(null);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [jobData, setJobData] = useState<JobData>();
@@ -66,8 +70,9 @@ export function ConfigureStepModal({
       setEnabledTabs((prev) => [...prev, "configure"]);
       setActiveTab("configure");
     } else if (activeTab === "configure") {
-      if(childref.current){
-        childref.current.
+      if (childref.current) {
+        const jobData = childref.current.submitHandler();
+        setJobData(jobData);
       }
       setEnabledTabs((prev) => [...prev, "test"]);
       setActiveTab("test");
@@ -188,7 +193,7 @@ export function ConfigureStepModal({
                 }>,
                 {
                   jobData: jobData as JobData,
-                  ref: childref
+                  ref: childref,
                 }
               )}
           </TabsContent>

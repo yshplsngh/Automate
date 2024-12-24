@@ -1,4 +1,9 @@
-import React, { useEffect, useState, forwardRef, useImperativeHandle } from "react";
+import React, {
+  useEffect,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,7 +45,6 @@ const sampleJson = JSON.stringify(
 type KeyValuePair = { key: string; value: string };
 
 interface HttpFormProps {
-  onSubmit: (data: JobData) => void;
   jobData: JobData | null;
 }
 
@@ -104,7 +108,7 @@ export const HttpForm = forwardRef(({ jobData }: HttpFormProps, ref) => {
     }
   }, [jobData]);
 
-  useImperativeHandle(ref, () => {
+  useImperativeHandle(ref, () => ({
     submitHandler: () => {
       const parametersObj = parameters.reduce((acc, { key, value }) => {
         if (key) {
@@ -112,13 +116,14 @@ export const HttpForm = forwardRef(({ jobData }: HttpFormProps, ref) => {
         }
         return acc;
       }, {} as HttpJob["input"]["parameters"]);
-  
+
       const headersObj = headers.reduce((acc, { key, value }) => {
         if (key) {
           acc[key] = value;
         }
         return acc;
       }, {} as HttpJob["input"]["headers"]);
+
       const httpJob = {
         key: "http",
         input: {
@@ -129,12 +134,11 @@ export const HttpForm = forwardRef(({ jobData }: HttpFormProps, ref) => {
           body: jsonBody,
         },
       } as HttpJob;
-  
+
       console.log("httpform job::", jobData);
       return httpJob;
-    }
-  })
-
+    },
+  }));
 
   return (
     <div
@@ -451,4 +455,4 @@ export const HttpForm = forwardRef(({ jobData }: HttpFormProps, ref) => {
       </Tabs>
     </div>
   );
-})
+});
