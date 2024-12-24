@@ -1,6 +1,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ThemeProvider } from "@/components/theme-provider";
+import Home from "@/screens/Home"
 
 import { Canvas } from "./components/Canvas";
 import {
@@ -28,6 +29,9 @@ export default function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<Layout/>}>
+          <Route index element={<Home/>} />
+        </Route>
         <Route path="/workflow/:workflowId" element={<Layout />}>
           <Route index element={<Canvas />} />
         </Route>

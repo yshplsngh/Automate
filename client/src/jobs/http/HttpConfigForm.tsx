@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,7 +44,7 @@ interface HttpFormProps {
   jobData: JobData | null;
 }
 
-export function HttpForm({ jobData, onSubmit }: HttpFormProps) {
+export const HttpForm = forwardRef(({ jobData }: HttpFormProps, ref) => {
   const { theme } = useTheme();
   const isDarkTheme = theme === "dark";
   const [httpMethod, setHttpMethod] =
@@ -104,35 +104,37 @@ export function HttpForm({ jobData, onSubmit }: HttpFormProps) {
     }
   }, [jobData]);
 
-  const submitHandler = () => {
-    const parametersObj = parameters.reduce((acc, { key, value }) => {
-      if (key) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {} as HttpJob["input"]["parameters"]);
+  useImperativeHandle(ref, () => {
+    submitHandler: () => {
+      const parametersObj = parameters.reduce((acc, { key, value }) => {
+        if (key) {
+          acc[key] = value;
+        }
+        return acc;
+      }, {} as HttpJob["input"]["parameters"]);
+  
+      const headersObj = headers.reduce((acc, { key, value }) => {
+        if (key) {
+          acc[key] = value;
+        }
+        return acc;
+      }, {} as HttpJob["input"]["headers"]);
+      const httpJob = {
+        key: "http",
+        input: {
+          url,
+          method: httpMethod,
+          parameters: parametersObj,
+          headers: headersObj,
+          body: jsonBody,
+        },
+      } as HttpJob;
+  
+      console.log("httpform job::", jobData);
+      return httpJob;
+    }
+  })
 
-    const headersObj = headers.reduce((acc, { key, value }) => {
-      if (key) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {} as HttpJob["input"]["headers"]);
-    const httpJob = {
-      key: "http",
-      input: {
-        url,
-        method: httpMethod,
-        parameters: parametersObj,
-        headers: headersObj,
-        body: jsonBody,
-      },
-    } as HttpJob;
-
-    console.log("httpform job::", jobData);
-
-    onSubmit(httpJob);
-  };
 
   return (
     <div
@@ -447,8 +449,6 @@ export function HttpForm({ jobData, onSubmit }: HttpFormProps) {
           </ScrollArea>
         </TabsContent>
       </Tabs>
-
-      <Button onClick={submitHandler}>Submit</Button>
     </div>
   );
-}
+})

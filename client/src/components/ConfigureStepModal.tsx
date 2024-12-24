@@ -1,4 +1,4 @@
-import { useState, useEffect, createElement } from "react";
+import { useState, useEffect, createElement, useRef } from "react";
 import { Check, ChevronRight, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +34,7 @@ export function ConfigureStepModal({
   workflowId,
 }: ConfigureStepModalProps) {
   const dispatch = useDispatch();
+  const childref = useRef()
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [jobData, setJobData] = useState<JobData>();
@@ -65,6 +66,9 @@ export function ConfigureStepModal({
       setEnabledTabs((prev) => [...prev, "configure"]);
       setActiveTab("configure");
     } else if (activeTab === "configure") {
+      if(childref.current){
+        childref.current.
+      }
       setEnabledTabs((prev) => [...prev, "test"]);
       setActiveTab("test");
     } else {
@@ -180,14 +184,11 @@ export function ConfigureStepModal({
               createElement(
                 selectedApp.configForm as unknown as React.ComponentType<{
                   jobData: JobData;
-                  onSubmit: (data: JobData) => void;
+                  ref: any;
                 }>,
                 {
                   jobData: jobData as JobData,
-                  onSubmit: (data: JobData) => {
-                    console.log("configdata::", data);
-                    setJobData(data);
-                  },
+                  ref: childref
                 }
               )}
           </TabsContent>
