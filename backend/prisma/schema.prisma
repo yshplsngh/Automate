@@ -16,7 +16,7 @@ model User {
     created_at         DateTime           @default(now())
     updated_at         DateTime           @updatedAt
     identity_providers IdentityProvider[]
-    workspaces         Workspace[]
+    workspaces         Workflow[]
 }
 
 model IdentityProvider {
@@ -35,24 +35,39 @@ model IdentityProvider {
     user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
-model Workspace {
+model Workflow {
     id          String   @id @default(cuid())
     name        String
     description String?
-    owner       User     @relation(fields: [owner_id], references: [id])
     owner_id    String
-    jobs        Job[]
+    job_count   Int
     created_at  DateTime @default(now())
     updated_at  DateTime @updatedAt
+    owner       User     @relation(fields: [owner_id], references: [id])
+    jobs        Job[]
 }
 
 model Job {
-    id           String    @id @default(cuid())
+    id           String   @id @default(cuid())
     name         String
     description  String?
-    workspace    Workspace @relation(fields: [workspace_id], references: [id])
+    workspace    Workflow @relation(fields: [workspace_id], references: [id])
     workspace_id String
+    app          Apps
+    step_no      Int
+    type         JobType
     data         Json
-    created_at   DateTime  @default(now())
-    updated_at   DateTime  @updatedAt
+    created_at   DateTime @default(now())
+    updated_at   DateTime @updatedAt
+}
+
+enum Apps {
+    http
+    schedule
+    webhook
+}
+
+enum JobType {
+    action
+    trigger
 }

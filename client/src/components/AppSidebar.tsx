@@ -22,6 +22,8 @@ import {
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import { useUser } from "@/providers/user-provider";
+import { Toggle } from "./ui/toggle";
+import { ModeToggle } from "./mode-toggle";
 
 // Menu items.
 const items = [
@@ -59,7 +61,12 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent className="bg-background border-none">
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel className="flex items-center justify-between px-2 py-4 mb-4">
+            <span className="text-lg text-neutral-800 dark:text-neutral-100 font-bold">
+              Automate
+            </span>
+            <ModeToggle />
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

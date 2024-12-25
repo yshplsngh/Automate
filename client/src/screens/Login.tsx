@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { AuthLayout } from "@/components/auth-layout";
-import { AuthForm } from "@/components/auth-form";
+import { AuthLayout } from "@/components/auth/auth-layout";
+import { AuthForm } from "@/components/auth/auth-form";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/providers/user-provider";
 

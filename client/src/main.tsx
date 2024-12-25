@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { store } from "./store/store.ts";
 import { Provider } from "react-redux";
-import { ThemeProvider } from "./components/theme-provider.tsx";
+import { ThemeProvider } from "./providers/theme-provider.tsx";
 import { UserProvider } from "./providers/user-provider.tsx";
 
 createRoot(document.getElementById("root")!).render(

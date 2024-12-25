@@ -117,5 +117,6 @@ export interface Job {
 
 export interface TypeWorkFlow {
   workflowId: string;
+  name: string;
   jobs: Job[];
 }

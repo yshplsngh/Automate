@@ -1,4 +1,5 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/sonner";
 import { AppSidebar } from "@/components/AppSidebar";
 import Home from "@/screens/Home";
 
@@ -11,18 +12,14 @@ import {
 } from "react-router-dom";
 import LoginPage from "./screens/Login";
 import SignupPage from "./screens/Signup";
-import { ModeToggle } from "./components/mode-toggle";
 
 function Layout() {
   return (
     <SidebarProvider>
       <AppSidebar />
+      <Toaster />
       {/* Main content area: takes up the remaining space */}
       <main className="flex-1 dark:bg-gray-600 relative">
-        <SidebarTrigger className="absolute top-0 left-0 h-10 w-10" />
-        <div className="absolute top-0 left-10">
-          <ModeToggle />
-        </div>
         <Outlet />
       </main>
     </SidebarProvider>
@@ -38,7 +35,6 @@ export default function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
         </Route>
-        <Route path="/login" element={<LoginPage />} />
         <Route path="/workflow/:workflowId" element={<Layout />}>
           <Route index element={<Canvas />} />
         </Route>
