@@ -20,7 +20,8 @@ export default function LoginPage() {
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-
+    console.log("email::", email);
+    console.log("password::", password);
     try {
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
@@ -47,6 +48,7 @@ export default function LoginPage() {
         setError(data.message || "An error occurred");
       }
     } catch (err) {
+      console.log(err);
       setError("An unexpected error occurred");
     } finally {
       setIsLoading(false);

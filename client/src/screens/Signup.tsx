@@ -16,6 +16,7 @@ export default function SignupPage() {
     setError(null);
 
     const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirm-password") as string;
@@ -32,13 +33,17 @@ export default function SignupPage() {
           headers: {
             "content-type": "application/json",
           },
-          body: JSON.stringify({ email: email, password: password }),
+          body: JSON.stringify({
+            email: email,
+            password: password,
+            name: name,
+          }),
         }
       );
       const data = await res.json();
       if (data.success) {
         console.log("Signup successful");
-        // Redirect or update app state here
+        window.location.href = "/";
       } else {
         setError(data.message || "An error occurred");
       }

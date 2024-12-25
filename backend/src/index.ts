@@ -1,9 +1,16 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
-import authRouter from "./routes/auth";
 dotenv.config();
+import cors from "cors";
+import db from "./db";
+
+import authRouter from "./routes/auth";
 
 const app: Express = express();
+
+app.use(express.json());
+
+app.use(cors());
 
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "hello world" });
@@ -12,5 +19,6 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/auth", authRouter);
 
 app.listen(3000, () => {
+  db.$connect();
   console.log("server is listning on port 3000");
 });

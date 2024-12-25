@@ -29,18 +29,29 @@ export function AuthForm({
         </Alert>
       )}
       <form onSubmit={onSubmit} className="space-y-4">
+        {type === "signup" && (
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input id="name" name="name" type="text" required />
+          </div>
+        )}
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" required />
+          <Input id="email" type="email" name="email" required />
         </div>
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" required />
+          <Input id="password" type="password" name="password" required />
         </div>
         {type === "signup" && (
           <div className="space-y-2">
             <Label htmlFor="confirm-password">Confirm Password</Label>
-            <Input id="confirm-password" type="password" required />
+            <Input
+              id="confirm-password"
+              name="confirm-password"
+              type="password"
+              required
+            />
           </div>
         )}
         <Button type="submit" className="w-full" disabled={isLoading}>
