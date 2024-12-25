@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
+import { useUser } from "@/providers/user-provider";
 
 // Menu items.
 const items = [
@@ -52,6 +53,8 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const { isAuthenticated, user } = useUser();
+
   return (
     <Sidebar>
       <SidebarContent className="bg-background border-none">
@@ -74,29 +77,35 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="">
-        <Separator />
-        <div className="flex flex-col space-y-2 mb-2">
-          <Button
-            variant="outline"
-            className="w-full justify-start dark:bg-neutral-800"
-            asChild
-          >
-            <a href="/login">
-              <LogIn className="mr-2 h-4 w-4" />
-              Log In
-            </a>
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full justify-start dark:bg-neutral-800"
-            asChild
-          >
-            <a href="/signup">
-              <UserPlus className="mr-2 h-4 w-4" />
-              Sign Up
-            </a>
-          </Button>
-        </div>
+        {isAuthenticated ? (
+          <h1>loggedin</h1>
+        ) : (
+          <>
+            <Separator />
+            <div className="flex flex-col space-y-2 mb-2">
+              <Button
+                variant="outline"
+                className="w-full justify-start dark:bg-neutral-800"
+                asChild
+              >
+                <a href="/login">
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Log In
+                </a>
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start dark:bg-neutral-800"
+                asChild
+              >
+                <a href="/signup">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Sign Up
+                </a>
+              </Button>
+            </div>
+          </>
+        )}
       </SidebarFooter>
     </Sidebar>
   );

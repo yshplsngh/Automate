@@ -5,13 +5,16 @@ import App from "./App.tsx";
 import { store } from "./store/store.ts";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "./components/theme-provider.tsx";
+import { UserProvider } from "./providers/user-provider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <Provider store={store}>
-        <App />
-      </Provider>
+      <UserProvider>
+        <Provider store={store}>
+          <App />
+        </Provider>
+      </UserProvider>
     </ThemeProvider>
   </StrictMode>
 );
