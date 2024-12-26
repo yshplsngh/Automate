@@ -1,15 +1,28 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Code, FileText, Filter, Folder, CloudLightningIcon as Lightning, Mail, MoreVertical, Plus, Rss, Search, Share2, Trash2 } from 'lucide-react'
-import { Button } from "@/components/ui/button"
+import * as React from "react";
+import {
+  Code,
+  FileText,
+  Filter,
+  Folder,
+  CloudLightningIcon as Lightning,
+  Mail,
+  MoreVertical,
+  Plus,
+  Rss,
+  Search,
+  Share2,
+  Trash2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -17,11 +30,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Toggle } from "@/components/ui/toggle"
-import { Switch } from "@/components/ui/switch"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Toggle } from "@/components/ui/toggle";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 
 // Custom purple theme
 const purpleTheme = {
@@ -29,16 +42,16 @@ const purpleTheme = {
   secondary: "bg-purple-100 text-purple-900 hover:bg-purple-200",
   muted: "text-purple-600",
   border: "border-purple-200",
-}
+};
 
 interface Zap {
-  id: string
-  name: string
-  apps: string[]
-  location: string
-  lastModified: string
-  status: boolean
-  owner: string
+  id: string;
+  name: string;
+  apps: string[];
+  location: string;
+  lastModified: string;
+  status: boolean;
+  owner: string;
 }
 
 const zaps: Zap[] = [
@@ -87,21 +100,27 @@ const zaps: Zap[] = [
     status: false,
     owner: "T",
   },
-]
+];
 
 export default function ZapsInterface() {
   return (
-    <div className="p-6">
+    <div className="p-6 dark:bg-neutral-800 min-h-full">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
           <h1 className="text-2xl font-bold">Zaps</h1>
           <Tabs defaultValue="zaps">
             <TabsList className={purpleTheme.border}>
-              <TabsTrigger value="zaps" className={cn("flex items-center gap-2", purpleTheme.secondary)}>
+              <TabsTrigger
+                value="zaps"
+                className={cn("flex items-center gap-2", purpleTheme.secondary)}
+              >
                 <Lightning className="h-4 w-4" />
                 Zaps
               </TabsTrigger>
-              <TabsTrigger value="folders" className={cn("flex items-center gap-2", purpleTheme.secondary)}>
+              <TabsTrigger
+                value="folders"
+                className={cn("flex items-center gap-2", purpleTheme.secondary)}
+              >
                 <Folder className="h-4 w-4" />
                 Folders
               </TabsTrigger>
@@ -109,7 +128,9 @@ export default function ZapsInterface() {
           </Tabs>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className={purpleTheme.secondary}>All</Button>
+              <Button variant="outline" className={purpleTheme.secondary}>
+                All
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem>All Zaps</DropdownMenuItem>
@@ -117,7 +138,10 @@ export default function ZapsInterface() {
               <DropdownMenuItem>Shared Zaps</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" className={cn("flex items-center gap-2", purpleTheme.secondary)}>
+          <Button
+            variant="outline"
+            className={cn("flex items-center gap-2", purpleTheme.secondary)}
+          >
             <Filter className="h-4 w-4" />
             Filters
           </Button>
@@ -126,7 +150,9 @@ export default function ZapsInterface() {
           <Button variant="ghost" size="icon" className={purpleTheme.muted}>
             <Trash2 className="h-5 w-5" />
           </Button>
-          <Button className={cn("flex items-center gap-2", purpleTheme.primary)}>
+          <Button
+            className={cn("flex items-center gap-2", purpleTheme.primary)}
+          >
             <Plus className="h-4 w-4" />
             Create
           </Button>
@@ -160,22 +186,23 @@ export default function ZapsInterface() {
               <TableCell>
                 <div className="flex gap-1">
                   {zap.apps.map((app, index) => {
-                    const Icon = {
-                      gmail: Mail,
-                      share2: Share2,
-                      filter: Filter,
-                      file: FileText,
-                      drive: Code,
-                      rss: Rss,
-                    }[app] || Mail
+                    const Icon =
+                      {
+                        gmail: Mail,
+                        share2: Share2,
+                        filter: Filter,
+                        file: FileText,
+                        drive: Code,
+                        rss: Rss,
+                      }[app] || Mail;
                     return (
                       <div
                         key={index}
-                        className="flex h-6 w-6 items-center justify-center rounded border bg-purple-100"
+                        className="flex h-6 w-6 items-center justify-center rounded border bg-purple-100 dark:bg-gray-100 dark:text-purple-700"
                       >
                         <Icon className="h-4 w-4" />
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </TableCell>
@@ -187,9 +214,9 @@ export default function ZapsInterface() {
               <TableCell>
                 <Switch
                   onCheckedChange={() => {
-                    console.log("toggle swith")
+                    console.log("toggle swith");
                   }}
-                  className="data-[state=checked]:bg-purple-400 data-[state=unchecked]:bg-input"
+                  className="data-[state=checked]:bg-purple-400 data-[state=unchecked]:bg-gray-200"
                 />
               </TableCell>
               <TableCell>
@@ -207,6 +234,5 @@ export default function ZapsInterface() {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }
-

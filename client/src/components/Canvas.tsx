@@ -6,11 +6,12 @@ import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { TypeWorkFlow } from "@/jobs/job-config";
 import { v4 } from "uuid";
 import { addWorkflow } from "@/store/slice/workflow";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/providers/user-provider";
 
 export function Canvas() {
   const { user } = useUser();
+  const { toast } = useToast();
   const { workflowId } = useParams();
   const workflows = useAppSelector((state) => state.workflow.workflows);
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export function Canvas() {
   const [workflow, setWorkflow] = useState<TypeWorkFlow | null>(null);
   const [workflowTitle, setWorkflowTitle] =
     useState<string>("Untitled Workflow");
+  const [saveLoading, setSaveLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (workflowId) {
@@ -41,7 +43,10 @@ export function Canvas() {
 
   const saveWorkflow = async () => {
     if (!user) {
-      toast("This action requires an account.");
+      toast({
+        title: "Unauthorized",
+        description: "Please signin in order to save workflow.",
+      });
       return;
     }
     console.log(workflows);
@@ -50,13 +55,14 @@ export function Canvas() {
     });
     console.log(currentWrokflow);
     try {
+      setSaveLoading(true);
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/workflow/create`,
         {
           method: "POST",
           headers: {
             "content-type": "application/json",
-            Authorization: `Bearer ${user?.token}`,
+            Authorization: `Bearer ${user.token}`,
           },
           body: JSON.stringify(currentWrokflow),
         }
@@ -64,13 +70,26 @@ export function Canvas() {
       const data = await res.json();
       console.log("recieved data workflow::", data);
       if (!data.success) {
-        toast(data.message ? data.message : "An unexpected error occurred");
+        toast({
+          title: "Error",
+          description: data.message
+            ? (data.message as string)
+            : "An unexpected error occurred",
+        });
         return;
       }
-      toast("Your workflow has been saved successfully.");
+      toast({
+        title: "Success",
+        description: "Your workflow has been saved successfully.",
+      });
     } catch (err: any) {
       console.log(err.message ? err.message : err);
-      toast("An unexpected error occurred");
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+      });
+    } finally {
+      setSaveLoading(false);
     }
   };
 
@@ -89,6 +108,7 @@ export function Canvas() {
         workflowTitle={workflowTitle}
         setWorkflowTitle={setWorkflowTitle}
         saveWorkflowFn={saveWorkflow}
+        saveLoading={saveLoading}
       />
       <div className="flex flex-col items-center justify-center w-full h-full bg-slate-300 dark:bg-zinc-800">
         {workflow && <ZapCard workflow={workflow} />}

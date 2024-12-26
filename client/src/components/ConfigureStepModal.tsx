@@ -56,6 +56,7 @@ export function ConfigureStepModal({
       data: jobData as JobData,
       type: trigger ? "trigger" : "action",
       name: name,
+      descripton: description,
       app: selectedApp?.app as "http" | "webhook" | "schedule",
     };
     dispatch(updateJob(job));

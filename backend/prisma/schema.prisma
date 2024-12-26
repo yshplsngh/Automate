@@ -36,7 +36,7 @@ model IdentityProvider {
 }
 
 model Workflow {
-    id          String   @id @default(cuid())
+    id          String   @id @unique @default(cuid())
     name        String
     description String?
     owner_id    String
@@ -51,7 +51,6 @@ model Job {
     id           String   @id @default(cuid())
     name         String
     description  String?
-    workspace    Workflow @relation(fields: [workspace_id], references: [id])
     workspace_id String
     app          Apps
     step_no      Int
@@ -59,6 +58,7 @@ model Job {
     data         Json
     created_at   DateTime @default(now())
     updated_at   DateTime @updatedAt
+    workspace    Workflow @relation(fields: [workspace_id], references: [id])
 }
 
 enum Apps {

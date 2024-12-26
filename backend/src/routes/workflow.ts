@@ -9,9 +9,17 @@ workflowRouter.post(
   "/create",
   async (req: Request, res: Response): Promise<void> => {
     const workflow = req.body as unknown as TypeWorkFlow;
-    console.log(workflow);
-    try{
-      const data = await db.workflow.create({
+    // console.log(workflow);
+    // console.log(
+    //   workflow.jobs.map((job) => {
+    //     console.log(job);
+    //   })
+    // );
+    // res.status(200);
+    // return;
+    let data;
+    try {
+      data = await db.workflow.create({
         data: {
           name: workflow.name,
           owner_id: req.user?.userid as string,
@@ -28,10 +36,14 @@ workflowRouter.post(
           },
         },
       });
-    }catch(e){
-      
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({
+        success: false,
+        message: "Failed to create workflow",
+      });
+      return;
     }
-
 
     res.status(200).json({
       success: true,
@@ -42,17 +54,38 @@ workflowRouter.post(
   }
 );
 
-workflowRouter.get("/", async (req: Request, res: Response): Promise<void> {
-  const userid = req.user?.userid;
-  const data = await db.workflow.findMany({
-    where: {
-      owner_id: userid,
+workflowRouter.get(
+  "/:id",
+  async (req: Request, res: Response): Promise<void> => {
+    const userid = req.user?.userid;
+    const workflowId = req.params.id;
+    try {
+      const data = await db.workflow.findFirst({
+        where: {
+          owner_id: userid,
+        },
+        include: {
+          jobs: true,
+        },
+      });
+      if (!data) {
+        res.status(304).json({
+          success: false,
+          message: "Resources not found.",
+        });
+      }
+      res.status(200).json({
+        success: true,
+        data: data,
+      });
+    } catch (err: any) {
+      console.log(err);
+      res.status(500).json({
+        success: false,
+        message: "An unexpected error has occured.",
+      });
     }
-  })
-  res.status(200).json({
-    success: true,
-    data: data,
-  })
-})
+  }
+);
 
 export default workflowRouter;

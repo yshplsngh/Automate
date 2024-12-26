@@ -1,5 +1,5 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toaster";
 import { AppSidebar } from "@/components/AppSidebar";
 import Home from "@/screens/Home";
 
@@ -20,7 +20,7 @@ function Layout() {
       <AppSidebar />
       <Toaster />
       {/* Main content area: takes up the remaining space */}
-      <main className="flex-1 dark:bg-gray-600 relative">
+      <main className="flex-1 relative">
         <Outlet />
       </main>
     </SidebarProvider>

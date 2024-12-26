@@ -6,12 +6,14 @@ interface TopBarProps {
   workflowTitle: string;
   setWorkflowTitle: (title: string) => void;
   saveWorkflowFn: () => void;
+  saveLoading: boolean;
 }
 
 export function TopBar({
   workflowTitle,
   setWorkflowTitle,
   saveWorkflowFn,
+  saveLoading,
 }: TopBarProps) {
   return (
     <div className="flex h-12 items-center justify-between border-b bg-background px-4">
@@ -33,6 +35,7 @@ export function TopBar({
       </div>
       <Button
         variant="default"
+        disabled={saveLoading}
         onClick={saveWorkflowFn}
         className="bg-neutral-800 dark:bg-slate-100"
       >
