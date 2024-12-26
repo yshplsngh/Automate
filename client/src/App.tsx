@@ -12,6 +12,7 @@ import {
 } from "react-router-dom";
 import LoginPage from "./screens/Login";
 import SignupPage from "./screens/Signup";
+import ZapsInterface from "./screens/Workflows";
 
 function Layout() {
   return (
@@ -34,6 +35,9 @@ export default function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
+        </Route>
+        <Route path="/work" element={<Layout />}>
+          <Route index element={<ZapsInterface />} />
         </Route>
         <Route path="/workflow/:workflowId" element={<Layout />}>
           <Route index element={<Canvas />} />
