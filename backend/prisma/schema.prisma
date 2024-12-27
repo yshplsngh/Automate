@@ -51,14 +51,14 @@ model Job {
     id           String   @id @default(cuid())
     name         String
     description  String?
-    workspace_id String
+    workflow_id String
     app          Apps
     step_no      Int
     type         JobType
     data         Json
     created_at   DateTime @default(now())
     updated_at   DateTime @updatedAt
-    workspace    Workflow @relation(fields: [workspace_id], references: [id])
+    workflow    Workflow @relation(fields: [workflow_id], references: [id])
 }
 
 enum Apps {
