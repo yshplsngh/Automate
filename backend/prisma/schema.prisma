@@ -48,16 +48,16 @@ model Workflow {
 }
 
 model Job {
-    id           String   @id @default(cuid())
-    name         String
-    description  String?
+    id          String   @id @default(cuid())
+    name        String
+    description String?
     workflow_id String
-    app          Apps
-    step_no      Int
-    type         JobType
-    data         Json
-    created_at   DateTime @default(now())
-    updated_at   DateTime @updatedAt
+    app         Apps
+    step_no     Int
+    type        JobType
+    data        Json
+    created_at  DateTime @default(now())
+    updated_at  DateTime @updatedAt
     workflow    Workflow @relation(fields: [workflow_id], references: [id])
 }
 
