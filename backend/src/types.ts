@@ -53,6 +53,7 @@ export interface ScheduleJob {
 export type JobData = HttpJob | WebhookJob | ScheduleJob;
 
 export interface Job {
+  id: string,
   workflowId: string;
   type: "trigger" | "action";
   step: number;
