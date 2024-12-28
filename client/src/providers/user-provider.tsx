@@ -8,18 +8,18 @@ import React, {
 
 type User = {
   id: string;
-  name?: string;
-  email?: string;
+  name: string;
+  email: string;
   avatarUrl?: string;
   token: string;
 };
 
-// Define the context value type
 type UserContextType = {
   user: User | null;
   isAuthenticated: boolean;
   login: (userData: User) => void;
   logout: () => void;
+  userStateLoading: boolean;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -28,6 +28,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [userStateLoading, setUserStateLoading] = useState<boolean>(true);
 
   const login = (userData: User) => {
     setUser(userData);
@@ -44,6 +45,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+    setUserStateLoading(false);
   }, []);
 
   const value: UserContextType = {
@@ -51,6 +53,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     isAuthenticated: !!user,
     login,
     logout,
+    userStateLoading,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

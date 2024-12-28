@@ -40,7 +40,7 @@ authRouter.post("/login", async (req: Request, res: Response): Promise<any> => {
   }
 
   const payload = {
-    userid: user.id,
+    id: user.id,
     email: user.email,
     name: user.name,
   };

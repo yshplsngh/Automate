@@ -40,7 +40,9 @@ model Workflow {
     name        String
     description String?
     owner_id    String
-    job_count   Int
+    job_count   Int      @default(0)
+    active      Boolean  @default(true)
+    apps        Apps[]   @default([])
     created_at  DateTime @default(now())
     updated_at  DateTime @updatedAt
     owner       User     @relation(fields: [owner_id], references: [id])

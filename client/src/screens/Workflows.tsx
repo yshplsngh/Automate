@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   Code,
   FileText,
@@ -32,9 +31,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Toggle } from "@/components/ui/toggle";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { useUser } from "@/providers/user-provider";
+import { useToast } from "@/hooks/use-toast";
 
 // Custom purple theme
 const purpleTheme = {
@@ -44,65 +45,51 @@ const purpleTheme = {
   border: "border-purple-200",
 };
 
-interface Zap {
-  id: string;
-  name: string;
-  apps: string[];
-  location: string;
-  lastModified: string;
-  status: boolean;
-  owner: string;
-}
-
-const zaps: Zap[] = [
-  {
-    id: "1",
-    name: "Untitled Zap",
-    apps: ["gmail"],
-    location: "Testing (Personal)",
-    lastModified: "2 days ago",
-    status: false,
-    owner: "T",
-  },
-  {
-    id: "2",
-    name: "Untitled Zap",
-    apps: ["gmail"],
-    location: "Testing (Personal)",
-    lastModified: "7 days ago",
-    status: false,
-    owner: "T",
-  },
-  {
-    id: "3",
-    name: "Untitled Zap",
-    apps: ["gmail"],
-    location: "Testing (Personal)",
-    lastModified: "Dec 2, 2024",
-    status: false,
-    owner: "T",
-  },
-  {
-    id: "4",
-    name: "Untitled Zap",
-    apps: ["share2", "filter"],
-    location: "Testing (Personal)",
-    lastModified: "Nov 30, 2024",
-    status: false,
-    owner: "T",
-  },
-  {
-    id: "5",
-    name: "Untitled Zap",
-    apps: ["file", "drive"],
-    location: "Testing (Personal)",
-    lastModified: "Nov 26, 2024",
-    status: false,
-    owner: "T",
-  },
-];
-
 export default function ZapsInterface() {
+  const { user, userStateLoading } = useUser();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [workflowData, setWorkflowData] = useState([]);
+  // const [pageSize, setPageSize] = useState(null);
+
+  useEffect(() => {
+    if (userStateLoading === true) {
+      return;
+    }
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/workflow/all`,
+          {
+            method: "GET",
+            headers: {
+              Autherisation: `Bearer ${user?.token}`,
+            },
+          }
+        );
+        const data = await res.json();
+        if (data.success) {
+          setWorkflowData(data.data);
+        } else {
+          toast({
+            title: "Error",
+            description: data.message ?? "Unexpected error happened.",
+          });
+        }
+      } catch (err: any) {
+        console.log(err);
+        toast({
+          title: "Error",
+          description: "An unexpected error happened.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [userStateLoading]);
+
   return (
     <div className="p-6 dark:bg-neutral-800 min-h-full">
       <div className="flex items-center justify-between mb-6">
@@ -166,35 +153,30 @@ export default function ZapsInterface() {
       </div>
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableRow className="px-0 [&>*]:px-0">
             <TableHead>Name</TableHead>
             <TableHead>Apps</TableHead>
-            <TableHead>Location</TableHead>
             <TableHead>Last modified</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Owner</TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {zaps.map((zap) => (
-            <TableRow key={zap.id}>
-              <TableCell className="flex items-center gap-2">
-                <Lightning className="h-4 w-4 text-muted-foreground" />
-                {zap.name}
+          {workflowData.map((workflow: any) => (
+            <TableRow key={workflow.id} className="align-middle">
+              <TableCell className="p-0">
+                <div className="flex flex-row gap-1">
+                  <Lightning className="h-4 w-4 text-muted-foreground" />
+                  <span className="hover:text-purple-900 cursor-pointer hover:underline">
+                    {workflow.name}
+                  </span>
+                </div>
               </TableCell>
-              <TableCell>
+              <TableCell className="gap-0 p-0">
                 <div className="flex gap-1">
-                  {zap.apps.map((app, index) => {
-                    const Icon =
-                      {
-                        gmail: Mail,
-                        share2: Share2,
-                        filter: Filter,
-                        file: FileText,
-                        drive: Code,
-                        rss: Rss,
-                      }[app] || Mail;
+                  {workflow.apps.map((app: string, index: number) => {
+                    const Icon: React.ComponentType<{ className?: string }> =
+                      Mail;
                     return (
                       <div
                         key={index}
@@ -206,12 +188,9 @@ export default function ZapsInterface() {
                   })}
                 </div>
               </TableCell>
-              <TableCell className="flex items-center gap-2">
-                <Folder className="h-4 w-4 text-muted-foreground" />
-                {zap.location}
-              </TableCell>
-              <TableCell>{zap.lastModified}</TableCell>
-              <TableCell>
+
+              <TableCell className="gap-0 p-0">{workflow.updated_at}</TableCell>
+              <TableCell className="gap-0 p-0">
                 <Switch
                   onCheckedChange={() => {
                     console.log("toggle swith");
@@ -219,12 +198,8 @@ export default function ZapsInterface() {
                   className="data-[state=checked]:bg-purple-400 data-[state=unchecked]:bg-gray-200"
                 />
               </TableCell>
-              <TableCell>
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 text-purple-600">
-                  {zap.owner}
-                </div>
-              </TableCell>
-              <TableCell>
+
+              <TableCell className="gap-0 p-0">
                 <Button variant="ghost" size="icon">
                   <MoreVertical className="h-4 w-4" />
                 </Button>

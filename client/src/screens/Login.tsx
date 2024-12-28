@@ -35,7 +35,7 @@ export default function LoginPage() {
       );
       const data = await res.json();
       if (data.success) {
-        console.log("Login successful");
+        console.log("Login Data::", data);
         login({
           name: data.name ?? "User",
           email: data.email,
