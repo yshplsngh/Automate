@@ -41,7 +41,7 @@ model Workflow {
     description String?
     owner_id    String
     job_count   Int      @default(0)
-    active      Boolean  @default(true)
+    active      Boolean  @default(false)
     apps        Apps[]   @default([])
     created_at  DateTime @default(now())
     updated_at  DateTime @updatedAt

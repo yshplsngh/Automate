@@ -91,7 +91,7 @@ authRouter.post(
       });
 
       const payload = {
-        userid: newUser.id,
+        id: newUser.id,
         email: newUser.email,
         name: newUser.name,
       };

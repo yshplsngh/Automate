@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { JwtPayload } from "jsonwebtoken";
 
 type UserPayload = {
-  userid: string;
+  id: string;
   email: string;
   name: string;
 };
@@ -33,6 +33,7 @@ export const isAuthenticated = (
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET!);
+    console.log(payload);
     req.user = payload as UserPayload;
     next();
   } catch (error) {
