@@ -168,6 +168,7 @@ workflowRouter.get(
         });
         return;
       }
+      console.log(data);
       res.status(200).json({
         success: true,
         data: data,

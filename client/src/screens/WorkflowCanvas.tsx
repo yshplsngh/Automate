@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
-import { ZapCard } from "./JobCard";
-import { TopBar } from "./Topbar";
-import { useNavigate, useParams } from "react-router-dom";
+import { ZapCard } from "../components/JobCard";
+import { TopBar } from "../components/Topbar";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { TypeWorkFlow } from "@/jobs/job-config";
-import { v4 } from "uuid";
-import { addWorkflow } from "@/store/slice/workflow";
+import { addWorkflow, updateWorkflow } from "@/store/slice/workflow";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/providers/user-provider";
 
-export function Canvas() {
-  const { user } = useUser();
+export function WorkflowCanvas() {
+  const { user, userStateLoading } = useUser();
   const { toast } = useToast();
   const { workflowId } = useParams();
+  const [searchParams, _setSearchParams] = useSearchParams();
+  const [mode, setMode] = useState<string>("edit");
   const workflows = useAppSelector((state) => state.workflow.workflows);
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [workflow, setWorkflow] = useState<TypeWorkFlow | null>(null);
   const [workflowTitle, setWorkflowTitle] =
@@ -22,24 +22,44 @@ export function Canvas() {
   const [saveLoading, setSaveLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    if (workflowId) {
-      const workflow = workflows.find(
-        (workflow) => workflow.workflowId === workflowId
-      );
-      if (workflow) {
-        setWorkflow(workflow);
-      } else {
-        const udid = v4();
-        dispatch(
-          addWorkflow({ jobs: [], workflowId: udid, name: workflowTitle })
-        );
-        setWorkflow({ jobs: [], workflowId: udid, name: workflowTitle });
-        navigate(`/workflow/${udid}`);
-      }
-    } else {
-      navigate("/workflows");
+    if (userStateLoading) {
+      return;
     }
-  }, [workflowId]);
+    if (!user) {
+      return;
+    }
+    const fetchWorkflow = async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/workflow/${workflowId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+              "content-type": "application/json",
+            },
+          }
+        );
+        if (!res.ok) {
+          return;
+        }
+        const data = await res.json();
+        if (!data.success) {
+          return;
+        }
+        console.log(data);
+        setWorkflow(data.data);
+        dispatch(addWorkflow(data.data));
+      } catch (e: any) {
+        console.log(e);
+      }
+    };
+    fetchWorkflow();
+  }, [workflowId, userStateLoading, user]);
+
+  useEffect(() => {
+    setMode(searchParams.get("mode") ?? "edit");
+  }, [searchParams]);
 
   const saveWorkflow = async () => {
     if (!user) {
@@ -90,6 +110,32 @@ export function Canvas() {
       });
     } finally {
       setSaveLoading(false);
+    }
+  };
+
+  const updateWorkflowData = async () => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/workflow/${workflowId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+          body: JSON.stringify(workflow),
+        }
+      );
+      if (!res.ok) {
+        throw new Error("Workflow Could not be saved.");
+      }
+      const data = await res.json();
+      if (!data.success) {
+        return;
+      }
+      setWorkflow(data.data);
+      dispatch(updateWorkflow(data.data));
+    } catch (e: any) {
+      console.log(e);
     }
   };
 

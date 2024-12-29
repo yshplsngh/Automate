@@ -34,7 +34,7 @@ const items = [
   },
   {
     title: "My Wrokflows",
-    url: "/workflows",
+    url: "/workflow",
     icon: Workflow,
   },
   {

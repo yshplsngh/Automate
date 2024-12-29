@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AppSidebar } from "@/components/AppSidebar";
 import Home from "@/screens/Home";
 
-import { Canvas } from "./components/Canvas";
+import { WorkflowCanvas } from "./screens/WorkflowCanvas";
 import {
   BrowserRouter as Router,
   Routes,
@@ -12,7 +12,7 @@ import {
 } from "react-router-dom";
 import LoginPage from "./screens/Login";
 import SignupPage from "./screens/Signup";
-import ZapsInterface from "./screens/Workflows";
+import Workflows from "./screens/Workflows";
 
 function Layout() {
   return (
@@ -36,11 +36,11 @@ export default function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
         </Route>
-        <Route path="/work" element={<Layout />}>
-          <Route index element={<ZapsInterface />} />
+        <Route path="/workflow" element={<Layout />}>
+          <Route index element={<Workflows />} />
         </Route>
         <Route path="/workflow/:workflowId" element={<Layout />}>
-          <Route index element={<Canvas />} />
+          <Route index element={<WorkflowCanvas />} />
         </Route>
       </Routes>
     </Router>

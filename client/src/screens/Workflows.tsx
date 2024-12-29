@@ -44,7 +44,7 @@ const purpleTheme = {
   border: "border-purple-200",
 };
 
-export default function ZapsInterface() {
+export default function Workflows() {
   const { user, userStateLoading } = useUser();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -186,7 +186,7 @@ export default function ZapsInterface() {
         </div>
       </div>
       <Table>
-        <TableHeader>
+        <TableHeader className="dark:border-gray-400">
           <TableRow className="px-0 [&>*]:px-0">
             <TableHead>Name</TableHead>
             <TableHead>Apps</TableHead>
@@ -195,9 +195,9 @@ export default function ZapsInterface() {
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className="[&>*]:dark:border-gray-400">
           {loading || userStateLoading ? ( // Show loader if loading or user state is loading
-            <TableRow>
+            <TableRow className="">
               <TableCell colSpan={5} className="text-center p-4">
                 <div className="flex justify-center items-center">
                   <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-purple-600"></div>
@@ -207,7 +207,10 @@ export default function ZapsInterface() {
             </TableRow>
           ) : workflowData.length > 0 ? (
             workflowData.map((workflow: any) => (
-              <TableRow key={workflow.id} className="align-middle">
+              <TableRow
+                key={workflow.id}
+                className="align-middle dark:border-gray-400"
+              >
                 <TableCell className="p-0">
                   <div className="flex flex-row gap-1">
                     <Lightning className="h-4 w-4 text-muted-foreground" />
@@ -248,8 +251,7 @@ export default function ZapsInterface() {
                     onCheckedChange={() => {
                       console.log("toggle switch");
                     }}
-                    checked={workflow.active}
-                    className="data-[state=checked]:bg-purple-400 data-[state=unchecked]:bg-gray-200"
+                    className="data-[state=checked]:bg-purple-600 data-[state=unchecked]:bg-gray-300 data-[state=unchecked]:dark:bg-neutral-400 [&>*]:bg-white"
                   />
                 </TableCell>
 
