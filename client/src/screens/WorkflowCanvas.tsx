@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ZapCard } from "../components/JobCard";
+import { JobCard } from "../components/JobCard";
 import { TopBar } from "../components/Topbar";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
@@ -60,6 +60,19 @@ export function WorkflowCanvas() {
   useEffect(() => {
     setMode(searchParams.get("mode") ?? "edit");
   }, [searchParams]);
+
+  const saveWorkflowAction = async () => {
+    if (mode === "create") {
+      await saveWorkflow();
+    } else if (mode === "edit") {
+      await updateWorkflowData();
+    } else {
+      toast({
+        title: "Error",
+        description: "Invalid Request.",
+      });
+    }
+  };
 
   const saveWorkflow = async () => {
     if (!user) {
@@ -153,11 +166,11 @@ export function WorkflowCanvas() {
       <TopBar
         workflowTitle={workflowTitle}
         setWorkflowTitle={setWorkflowTitle}
-        saveWorkflowFn={saveWorkflow}
+        saveWorkflowFn={saveWorkflowAction}
         saveLoading={saveLoading}
       />
       <div className="flex flex-col items-center justify-center w-full h-full bg-slate-300 dark:bg-zinc-800">
-        {workflow && <ZapCard workflow={workflow} />}
+        {workflow && <JobCard workflow={workflow} />}
       </div>
     </>
   );

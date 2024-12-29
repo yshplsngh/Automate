@@ -107,11 +107,11 @@ interface Steps {
   isConfigured: boolean;
 }
 
-interface ZapCardProps {
+interface JobCardProps {
   workflow: TypeWorkFlow;
 }
 
-export function ZapCard({ workflow }: ZapCardProps) {
+export function JobCard({ workflow }: JobCardProps) {
   const [steps, setSteps] = useState<Steps[]>([]);
 
   const createStep = (
