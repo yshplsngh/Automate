@@ -1,15 +1,11 @@
 import {
-  Code,
-  FileText,
   Filter,
   Folder,
   CloudLightningIcon as Lightning,
   Mail,
   MoreVertical,
   Plus,
-  Rss,
   Search,
-  Share2,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

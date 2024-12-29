@@ -139,7 +139,7 @@ export function JobCard({ workflow }: JobCardProps) {
       return;
     }
 
-    console.log("workflow-zapcard-job::", workflow);
+    console.log("workflow-jobcard-job::", workflow);
 
     const mappedSteps: Steps[] = workflow.jobs.map((job) => ({
       title: job.name ? job.name : job.app,

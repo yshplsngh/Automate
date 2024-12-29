@@ -1,36 +1,11 @@
 import { Router, Request, Response } from "express";
-import { Job, TypeWorkFlow } from "../types";
+import { Job } from "../types";
 import db from "../db";
+import { createWorkflowController } from "../controller/workflow/workflow";
 
 const workflowRouter = Router();
 
-workflowRouter.post(
-  "/new",
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      const data = await db.workflow.create({
-        data: {
-          name: "Untitled Workflow",
-          owner_id: req.user?.id as string,
-          job_count: 0,
-        },
-      });
-      res.status(200).json({
-        success: true,
-        message: "Workflow created",
-        workflowData: data,
-      });
-      return;
-    } catch (e) {
-      console.log(e);
-      res.status(500).json({
-        success: false,
-        message: "Failed to create workflow",
-      });
-      return;
-    }
-  }
-);
+workflowRouter.post("/new", createWorkflowController);
 
 workflowRouter.post(
   "/create",

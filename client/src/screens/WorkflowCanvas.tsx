@@ -157,7 +157,10 @@ export function WorkflowCanvas() {
       (workflow) => workflow.workflowId === workflowId
     );
     if (workflow) {
+      console.log("workflow::", workflow);
       setWorkflow(workflow);
+    } else {
+      console.error("workflow not found");
     }
   }, [workflows]);
 

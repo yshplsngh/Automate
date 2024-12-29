@@ -16,7 +16,7 @@ model User {
     created_at         DateTime           @default(now())
     updated_at         DateTime           @updatedAt
     identity_providers IdentityProvider[]
-    workspaces         Workflow[]
+    workflows          Workflow[]
 }
 
 model IdentityProvider {
@@ -37,7 +37,7 @@ model IdentityProvider {
 
 model Workflow {
     id          String   @id @unique @default(cuid())
-    name        String
+    name        String   @default("Untitled Workflow")
     description String?
     owner_id    String
     job_count   Int      @default(0)

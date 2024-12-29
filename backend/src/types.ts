@@ -1,5 +1,7 @@
 export type Apps = "http" | "webhook" | "schedule";
 
+export type JobType = "action" | "trigger";
+
 export interface Schedule {
   type: "fixed" | "interval";
   fixedTime?: {
@@ -53,18 +55,25 @@ export interface ScheduleJob {
 export type JobData = HttpJob | WebhookJob | ScheduleJob;
 
 export interface Job {
-  id: string,
-  workflowId: string;
-  type: "trigger" | "action";
-  step: number;
+  id: string;
+  workflow_id: string;
+  type: JobType;
+  step_no: number;
   name: string;
-  description?: string;
-  app: "http" | "webhook" | "schedule";
+  description?: string | null;
+  app: Apps;
   data: JobData;
 }
 
-export interface TypeWorkFlow {
-  workflowId: string;
+export type Workflow = {
+  id: string;
   name: string;
+  description?: string | null;
+  owner_id: string;
+  job_count: number;
+  active: boolean;
+  apps: Apps[];
+  created_at: Date;
+  updated_at: Date;
   jobs: Job[];
-}
+};
