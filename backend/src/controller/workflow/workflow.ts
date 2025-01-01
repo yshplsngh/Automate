@@ -4,7 +4,7 @@ import { JobCreateDataType, WorkflowCreateSchema } from "./schema";
 import { z } from "zod";
 
 // Controller function for creating a new workflow
-export const createWorkflowController = async (
+export const createNewWorkflowController = async (
   req: Request,
   res: Response
 ): Promise<void> => {
@@ -40,7 +40,10 @@ export const createWorkflowController = async (
   }
 };
 
-export const createWorkflow = async (
+/*
+* create new jobs inside a workflow.
+*/
+export const createWorkflowController = async (
   req: Request,
   res: Response
 ): Promise<void> => {
@@ -114,5 +117,86 @@ export const createWorkflow = async (
         message: "An error occurred.",
       });
     }
+  }
+};
+
+export const getAllWorkflowDataController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const query = req.query;
+    console.log("/all");
+    console.log("userId::all", userId);
+    if (!userId) {
+      res.status(403).json({ message: "Unauthorized request", success: false });
+      return;
+    }
+    const skip = query.skip ? parseInt(query.skip as string, 10) : undefined;
+    const take = query.take ? parseInt(query.take as string, 10) : undefined;
+
+    const data = await db.workflow.findMany({
+      where: {
+        owner_id: userId,
+      },
+      ...(skip != null && { skip }),
+      ...(take != null && { take }),
+      orderBy: {
+        updated_at: "desc",
+      },
+    });
+
+    console.log(data);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+    return;
+  } catch (err: any) {
+    console.error("Error fetching workflows:", err.message || err);
+    res.status(500).json({
+      success: false,
+      message: err.message || "An error occurred while fetching workflows.",
+    });
+  }
+};
+
+export const getWorkflowDataController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const userid = req.user?.id;
+  const workflowId = req.params.id;
+  try {
+    const data = await db.workflow.findFirst({
+      where: {
+        owner_id: userid,
+        id: workflowId,
+      },
+      include: {
+        jobs: true,
+      },
+    });
+    if (!data) {
+      res.status(404).json({
+        success: false,
+        message: "Resources not found.",
+      });
+      return;
+    }
+    console.log(data);
+    res.status(200).json({
+      success: true,
+      data: data,
+    });
+    return;
+  } catch (err: any) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error has occured.",
+    });
   }
 };

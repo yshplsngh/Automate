@@ -1,163 +1,22 @@
 import { Router, Request, Response } from "express";
 import { Job } from "../types";
 import db from "../db";
-import { createWorkflowController } from "../controller/workflow/workflow";
+import {
+  createNewWorkflowController,
+  createWorkflowController,
+  getAllWorkflowDataController,
+  getWorkflowDataController,
+} from "../controller/workflow/workflow";
 
 const workflowRouter = Router();
 
-workflowRouter.post("/new", createWorkflowController);
+workflowRouter.post("/new", createNewWorkflowController);
 
-workflowRouter.post(
-  "/create",
-  async (req: Request, res: Response): Promise<void> => {
-    const userId = req.user?.id;
-    const { workflowId, workflowName, workflowDescription, jobs } = req.body;
+workflowRouter.post("/create", createWorkflowController);
 
-    try {
-      const result = await db.$transaction(async (prisma) => {
-        const dbWorkflow = await prisma.workflow.findFirst({
-          where: {
-            id: workflowId,
-            owner_id: userId,
-          },
-        });
+workflowRouter.get("/all", getAllWorkflowDataController);
 
-        if (!dbWorkflow) {
-          throw new Error("Workflow does not exist.");
-        }
-
-        let updatedWorkflow = dbWorkflow;
-
-        if (
-          workflowName !== dbWorkflow.name ||
-          workflowDescription !== dbWorkflow.description
-        ) {
-          updatedWorkflow = await prisma.workflow.update({
-            where: { id: workflowId },
-            data: {
-              name: workflowName,
-              description: workflowDescription,
-            },
-          });
-        }
-
-        await prisma.job.createMany({
-          data: jobs.map((job: Job) => ({
-            ...job,
-            workflow_id: dbWorkflow.id,
-          })),
-        });
-
-        return prisma.workflow.findFirst({
-          where: { id: workflowId },
-          include: { jobs: true },
-        });
-      });
-
-      res.status(201).json({
-        success: true,
-        message: "Workflow and jobs created successfully.",
-        data: result,
-      });
-      return;
-    } catch (e: any) {
-      if (e.message === "Workflow does not exist.") {
-        res.status(400).json({
-          success: false,
-          message: e.message,
-        });
-      } else {
-        res.status(500).json({
-          success: false,
-          message: "An error occurred.",
-        });
-      }
-    }
-  }
-);
-
-workflowRouter.get(
-  "/all",
-  async (req: Request, res: Response): Promise<void> => {
-    const userId = req.user?.id;
-    const query = req.query;
-    console.log("/all");
-    console.log("userId::all", userId);
-    if (!userId) {
-      res.status(403).json({ message: "Unauthorized request", success: false });
-      return;
-    }
-
-    try {
-      const skip = query.skip ? parseInt(query.skip as string, 10) : undefined;
-      const take = query.take ? parseInt(query.take as string, 10) : undefined;
-
-      const data = await db.workflow.findMany({
-        where: {
-          owner_id: userId,
-        },
-        ...(skip != null && { skip }),
-        ...(take != null && { take }),
-        orderBy: {
-          updated_at: "desc",
-        },
-      });
-
-      console.log(data);
-
-      res.status(200).json({
-        success: true,
-        data,
-      });
-      return;
-    } catch (e: any) {
-      console.error("Error fetching workflows:", e);
-      res.status(500).json({
-        success: false,
-        message: "An error occurred while fetching workflows.",
-      });
-      return;
-    }
-  }
-);
-
-workflowRouter.get(
-  "/:id",
-  async (req: Request, res: Response): Promise<void> => {
-    const userid = req.user?.id;
-    const workflowId = req.params.id;
-    try {
-      const data = await db.workflow.findFirst({
-        where: {
-          owner_id: userid,
-          id: workflowId,
-        },
-        include: {
-          jobs: true,
-        },
-      });
-      if (!data) {
-        res.status(404).json({
-          success: false,
-          message: "Resources not found.",
-        });
-        return;
-      }
-      console.log(data);
-      res.status(200).json({
-        success: true,
-        data: data,
-      });
-      return;
-    } catch (err: any) {
-      console.log(err);
-      res.status(500).json({
-        success: false,
-        message: "An unexpected error has occured.",
-      });
-    }
-  }
-);
+workflowRouter.get("/:id", getWorkflowDataController);
 
 workflowRouter.put(
   "/:id",
