@@ -97,7 +97,7 @@ export default function Workflows() {
         }
       );
       if (!res.ok) {
-        throw new Error("Error fetching workflows.");
+        throw new Error("Error creating workflows.");
       }
       const data = await res.json();
       console.log(data);

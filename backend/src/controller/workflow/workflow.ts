@@ -42,8 +42,10 @@ export const createNewWorkflowController = async (
 };
 
 /*
-* create new jobs inside a workflow.
-*/
+ *
+ * batch job save inside a workflow.
+ *
+ */
 export const createWorkflowController = async (
   req: Request,
   res: Response
@@ -203,7 +205,10 @@ export const getWorkflowDataController = async (
   }
 };
 
-export const updateWorkflowController =   async (req: Request, res: Response): Promise<void> => {
+export const updateWorkflowController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const id = req.params.id;
   const userId = req.user?.id;
 
@@ -214,7 +219,11 @@ export const updateWorkflowController =   async (req: Request, res: Response): P
 
   try {
     const parsedBody = WorkflowCreateSchema.safeParse(req.body);
-    const {name, des} = parsedBody.data
+    if (!parsedBody.success) {
+      res.status(400).json({ success: false, message: "Invalid request data" });
+      return;
+    }
+    const { name, description, jobs } = parsedBody.data;
     const data = await db.$transaction(async (prisma) => {
       // Update Workflow
       const workflow = await prisma.workflow.update({
@@ -227,9 +236,9 @@ export const updateWorkflowController =   async (req: Request, res: Response): P
           description: description,
           updated_at: new Date(),
         },
-        include:{
+        include: {
           jobs: true,
-        }
+        },
       });
 
       // Handle job upsert and deletion
@@ -242,7 +251,7 @@ export const updateWorkflowController =   async (req: Request, res: Response): P
               id: job.id, // Assuming job.id can be absent for new jobs
             },
             create: {
-              workflow_id: id, 
+              workflow_id: id,
               name: job.name,
               description: job.description,
               app: job.app,
@@ -293,4 +302,4 @@ export const updateWorkflowController =   async (req: Request, res: Response): P
       .json({ success: false, message: "Error updating workflow." });
     return;
   }
-}
+};

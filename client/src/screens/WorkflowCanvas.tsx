@@ -3,10 +3,10 @@ import { JobCard } from "../components/JobCard";
 import { TopBar } from "../components/Topbar";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
-import { TypeWorkFlow } from "@/jobs/job-config";
 import { addWorkflow, updateWorkflow } from "@/store/slice/workflow";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/providers/user-provider";
+import { WorkflowType } from "@/types";
 
 export function WorkflowCanvas() {
   const { user, userStateLoading } = useUser();
@@ -16,7 +16,7 @@ export function WorkflowCanvas() {
   const [mode, setMode] = useState<string>("edit");
   const workflows = useAppSelector((state) => state.workflow.workflows);
   const dispatch = useAppDispatch();
-  const [workflow, setWorkflow] = useState<TypeWorkFlow | null>(null);
+  const [workflow, setWorkflow] = useState<WorkflowType | null>(null);
   const [workflowTitle, setWorkflowTitle] =
     useState<string>("Untitled Workflow");
   const [saveLoading, setSaveLoading] = useState<boolean>(false);
@@ -84,7 +84,7 @@ export function WorkflowCanvas() {
     }
     console.log(workflows);
     const currentWrokflow = workflows.find((wf) => {
-      return wf.workflowId === workflowId;
+      return wf.id === workflowId;
     });
     console.log(currentWrokflow);
     try {
@@ -153,9 +153,7 @@ export function WorkflowCanvas() {
   };
 
   useEffect(() => {
-    const workflow = workflows.find(
-      (workflow) => workflow.workflowId === workflowId
-    );
+    const workflow = workflows.find((workflow) => workflow.id === workflowId);
     if (workflow) {
       console.log("workflow::", workflow);
       setWorkflow(workflow);
