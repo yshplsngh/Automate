@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import db from "../../db";
+import { Job } from "@prisma/client";
 import { JobCreateDataType, WorkflowCreateSchema } from "./schema";
 import { z } from "zod";
 
@@ -51,7 +52,8 @@ export const createWorkflowController = async (
     const parsedBody = WorkflowCreateSchema.parse(req.body);
 
     const userId = req.user?.id;
-    const { id, name, description, jobs } = parsedBody;
+    const id = req.params.id;
+    const { name, description, jobs } = parsedBody;
 
     const result = await db.$transaction(async (prisma) => {
       const dbWorkflow = await prisma.workflow.findFirst({
@@ -200,3 +202,95 @@ export const getWorkflowDataController = async (
     });
   }
 };
+
+export const updateWorkflowController =   async (req: Request, res: Response): Promise<void> => {
+  const id = req.params.id;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    res.status(403).json({ success: false, message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const parsedBody = WorkflowCreateSchema.safeParse(req.body);
+    const {name, des} = parsedBody.data
+    const data = await db.$transaction(async (prisma) => {
+      // Update Workflow
+      const workflow = await prisma.workflow.update({
+        where: {
+          id: id,
+          owner_id: userId,
+        },
+        data: {
+          name: parsedBody.data?.name,
+          description: description,
+          updated_at: new Date(),
+        },
+        include:{
+          jobs: true,
+        }
+      });
+
+      // Handle job upsert and deletion
+      let updatedJobs: Job[] = [];
+
+      if (Array.isArray(jobs)) {
+        for (const job of jobs) {
+          const jobData = await prisma.job.upsert({
+            where: {
+              id: job.id, // Assuming job.id can be absent for new jobs
+            },
+            create: {
+              workflow_id: id, 
+              name: job.name,
+              description: job.description,
+              app: job.app,
+              type: job.type,
+              step_no: job.step_no,
+              data: job.data,
+              created_at: new Date(),
+              updated_at: new Date(),
+            },
+            update: {
+              name: job.name,
+              description: job.description,
+              step_no: job.step_no,
+              app: job.app,
+              type: job.type,
+              data: job.data,
+              updated_at: new Date(),
+            },
+          });
+          updatedJobs.push(jobData);
+        }
+      }
+
+      // Delete jobs that are not included in the request
+      const incomingJobIds = updatedJobs
+        .map((job: Job) => job.id)
+        .filter(Boolean);
+      await prisma.job.deleteMany({
+        where: {
+          workflow_id: id,
+          id: { notIn: incomingJobIds },
+        },
+      });
+
+      return workflow;
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Workflow updated successfully.",
+      data: data,
+    });
+    return;
+  } catch (err: any) {
+    console.error("Error updating workflow:", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Error updating workflow." });
+    return;
+  }
+}

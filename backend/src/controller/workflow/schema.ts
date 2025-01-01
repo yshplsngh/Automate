@@ -4,6 +4,7 @@ import { Apps, JobDataSchema, JobType } from "../../schema";
 export const NewWorkflowCreateSchema = z.object({});
 
 export const JobCreateSchema = z.object({
+  id: z.string(),
   name: z.string(),
   description: z.string().optional(),
   app: Apps,
