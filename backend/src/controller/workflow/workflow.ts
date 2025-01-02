@@ -338,3 +338,52 @@ export const updateWorkflowController = async (
     return;
   }
 };
+
+// PUT /:id/activate
+export const activateWorkflowController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const userId = req.user?.id;
+  const workflowId = req.params.id;
+  try {
+    const workflow = db.workflow.findFirst({
+      where: {
+        id: workflowId,
+        owner_id: userId,
+      },
+    });
+    if (!workflow) {
+      res.status(404).json({
+        success: false,
+        message: "No workflow found.",
+      });
+      return;
+    }
+    const data = db.workflow.update({
+      where: {
+        id: workflowId,
+        owner_id: userId,
+      },
+      data: {
+        active: true,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        id: workflowId,
+        active: (await data).active,
+      },
+    });
+    return;
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Unexpected Error has happened.",
+    });
+    return;
+  }
+};

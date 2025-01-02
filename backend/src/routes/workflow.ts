@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import {
+  activateWorkflowController,
   createNewWorkflowController,
   createWorkflowController,
   getAllWorkflowDataController,
@@ -18,5 +19,7 @@ workflowRouter.get("/:id", getWorkflowDataController);
 workflowRouter.post("/:id", createWorkflowController);
 
 workflowRouter.put("/:id", updateWorkflowController);
+
+workflowRouter.put("/:id/activate", activateWorkflowController);
 
 export default workflowRouter;
