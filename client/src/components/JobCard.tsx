@@ -3,7 +3,7 @@ import { Plus, MoreVertical, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { ConfigureStepModal } from "./ConfigureStepModal";
-import { jobConfig } from "@/jobs/job-config";
+import { JobCongiguration } from "@/jobs/job-config";
 import { JobType, WorkflowType } from "@/types";
 
 const Tail = ({
@@ -130,6 +130,7 @@ export function JobCard({ workflow }: JobCardProps) {
   const addStep = () => {
     setSteps((prevSteps) => {
       const newStepNumber = prevSteps.length + 1;
+      console.log("newStepNumber", newStepNumber);
       return [...prevSteps, createStep("action", newStepNumber)];
     });
   };
@@ -147,7 +148,7 @@ export function JobCard({ workflow }: JobCardProps) {
       type: job.type,
       stepNumber: job.step_no,
       icon:
-        jobConfig.find((j) => j.app === job.app)?.icon("h-4 w-4") ||
+        JobCongiguration.find((j) => j.app === job.app)?.icon("h-4 w-4") ||
         createElement(Zap, { className: "h-4 w-4" }),
       job,
       isConfigured: true,

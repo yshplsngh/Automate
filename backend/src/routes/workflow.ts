@@ -4,6 +4,7 @@ import {
   createWorkflowController,
   getAllWorkflowDataController,
   getWorkflowDataController,
+  updateWorkflowController,
 } from "../controller/workflow/workflow";
 
 const workflowRouter = Router();
@@ -16,6 +17,6 @@ workflowRouter.get("/:id", getWorkflowDataController);
 
 workflowRouter.post("/:id", createWorkflowController);
 
-workflowRouter.put("/:id");
+workflowRouter.put("/:id", updateWorkflowController);
 
 export default workflowRouter;

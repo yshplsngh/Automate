@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
 import db from "../../db";
 import { Job } from "@prisma/client";
-import { JobCreateDataType, WorkflowCreateSchema } from "./schema";
+import {
+  JobCreateDataType,
+  WorkflowCreateSchema,
+  WorkflowResponseSchema,
+} from "./schema";
 import { z } from "zod";
 
 // Controller function for creating a new workflow
@@ -24,7 +28,7 @@ export const createNewWorkflowController = async (
       },
       include: {
         jobs: true,
-      }
+      },
     });
 
     const safeData = WorkflowCreateSchema.parse(data);
@@ -84,12 +88,14 @@ export const createWorkflowController = async (
       }
 
       // Create new jobs associated with the workflow
-      await prisma.job.createMany({
-        data: jobs.map((job: JobCreateDataType) => ({
-          ...job,
-          workflow_id: dbWorkflow.id,
-        })),
-      });
+      if (jobs) {
+        await prisma.job.createMany({
+          data: jobs.map((job: JobCreateDataType) => ({
+            ...job,
+            workflow_id: dbWorkflow.id,
+          })),
+        });
+      }
 
       // Return the updated workflow with jobs
       return prisma.workflow.findFirst({
@@ -98,7 +104,7 @@ export const createWorkflowController = async (
       });
     });
 
-    const safeData = WorkflowCreateSchema.parse(result)
+    const safeData = WorkflowCreateSchema.parse(result);
 
     res.status(201).json({
       success: true,
@@ -128,6 +134,7 @@ export const createWorkflowController = async (
   }
 };
 
+// "/all"
 export const getAllWorkflowDataController = async (
   req: Request,
   res: Response
@@ -141,8 +148,10 @@ export const getAllWorkflowDataController = async (
       res.status(403).json({ message: "Unauthorized request", success: false });
       return;
     }
-    const skip = query.skip ? parseInt(query.skip as string, 10) : undefined;
-    const take = query.take ? parseInt(query.take as string, 10) : undefined;
+    const skip = query.skip ? parseInt(query.skip as string, 10) : null;
+    const take = query.take ? parseInt(query.take as string, 10) : null;
+
+    console.log(skip, take);
 
     const data = await db.workflow.findMany({
       where: {
@@ -153,13 +162,23 @@ export const getAllWorkflowDataController = async (
       orderBy: {
         updated_at: "desc",
       },
+      include: {
+        jobs: true,
+      },
     });
 
-    const safeData = WorkflowCreateSchema.parse(data)
+    const safeParseData = [];
+
+    for (const d of data) {
+      let p = WorkflowResponseSchema.parse(d);
+      safeParseData.push(p);
+    }
+
+    console.log(safeParseData);
 
     res.status(200).json({
       success: true,
-      data: safeData,
+      data: safeParseData,
     });
     return;
   } catch (err: any) {
@@ -171,6 +190,7 @@ export const getAllWorkflowDataController = async (
   }
 };
 
+// workflow/:id
 export const getWorkflowDataController = async (
   req: Request,
   res: Response
@@ -194,7 +214,8 @@ export const getWorkflowDataController = async (
       });
       return;
     }
-    const safeData = WorkflowCreateSchema.parse(data)
+    const safeData = WorkflowResponseSchema.parse(data);
+    console.log(safeData);
     res.status(200).json({
       success: true,
       data: safeData,
@@ -209,6 +230,7 @@ export const getWorkflowDataController = async (
   }
 };
 
+// PUT /api/workflow/:id
 export const updateWorkflowController = async (
   req: Request,
   res: Response
@@ -216,15 +238,20 @@ export const updateWorkflowController = async (
   const id = req.params.id;
   const userId = req.user?.id;
 
+  console.log(req.body);
+
   if (!userId) {
     res.status(403).json({ success: false, message: "Unauthorized" });
     return;
   }
 
   try {
+    console.log(req.body.jobs[0].data);
+    console.log(req.body.jobs[1].data);
     const parsedBody = WorkflowCreateSchema.safeParse(req.body);
     if (!parsedBody.success) {
       res.status(400).json({ success: false, message: "Invalid request data" });
+      console.log(parsedBody.error.issues[0]);
       return;
     }
     const { name, description, jobs } = parsedBody.data;
@@ -236,7 +263,7 @@ export const updateWorkflowController = async (
           owner_id: userId,
         },
         data: {
-          name: parsedBody.data?.name,
+          name: name,
           description: description,
           updated_at: new Date(),
         },
@@ -252,7 +279,7 @@ export const updateWorkflowController = async (
         for (const job of jobs) {
           const jobData = await prisma.job.upsert({
             where: {
-              id: job.id, 
+              id: job.id,
             },
             create: {
               workflow_id: id,
@@ -296,7 +323,7 @@ export const updateWorkflowController = async (
       });
     });
 
-    const safeData = WorkflowCreateSchema.parse(data)
+    const safeData = WorkflowResponseSchema.parse(data);
 
     res.status(200).json({
       success: true,

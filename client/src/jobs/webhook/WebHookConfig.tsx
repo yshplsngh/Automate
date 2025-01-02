@@ -1,9 +1,11 @@
 import { ReadOnlyInput } from "@/components/readonly-input";
-import { JobData, WebhookJob } from "../job-config";
+import { JobDataType } from "@/types";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
+export type WebhookJobDataType = Extract<JobDataType, { key: "webhook" }>;
+
 interface WebhookJobConfigurationProps {
-  jobData?: JobData;
+  jobData?: JobDataType;
 }
 
 export const WebhookJobConfiguration = forwardRef(
@@ -12,8 +14,8 @@ export const WebhookJobConfiguration = forwardRef(
 
     useEffect(() => {
       if (!jobData) return;
-      const data = jobData as WebhookJob;
-      setUrl(data.webhoookUrl);
+      const data = jobData as WebhookJobDataType;
+      setUrl(data.input.webhookUrl);
     }, [jobData]);
 
     useImperativeHandle(ref, () => ({
@@ -25,8 +27,10 @@ export const WebhookJobConfiguration = forwardRef(
     const handleSubmit = () => {
       const WebhookJob = {
         key: "webhook",
-        webhoookUrl: url,
-      } as WebhookJob;
+        input: {
+          webhookUrl: url,
+        },
+      } as WebhookJobDataType;
       return WebhookJob;
     };
     return (

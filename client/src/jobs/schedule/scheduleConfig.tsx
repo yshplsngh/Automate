@@ -18,11 +18,13 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { JobData, Schedule, ScheduleJob } from "../job-config";
+import { JobDataType } from "@/types";
 import { CalendarIcon, Clock } from "lucide-react";
 
+export type ScheduleJobDataType = Extract<JobDataType, { key: "schedule" }>;
+
 interface ScheduleConfigProps {
-  jobData?: JobData;
+  jobData?: JobDataType;
 }
 
 export const ScheduleConfig = forwardRef(
@@ -39,14 +41,17 @@ export const ScheduleConfig = forwardRef(
     // Parse the ISO string on load
     useEffect(() => {
       if (!jobData) return;
-      const data = jobData as ScheduleJob;
-      if (data?.schedule.fixedTime?.dateTime) {
-        const parsedDate = parseISO(data.schedule.fixedTime.dateTime);
+      const data = jobData as ScheduleJobDataType;
+      if (data.type == "fixed" && data.fixedTime) {
+        const parsedDate = parseISO(data.fixedTime?.dateTime);
         setDate(parsedDate);
         setTime(format(parsedDate, "HH:mm"));
         const timeZoneMatch =
-          data.schedule.fixedTime.dateTime.match(/([+-]\d{2}:\d{2}|Z)$/);
+          data.fixedTime.dateTime.match(/([+-]\d{2}:\d{2}|Z)$/);
         setTimezone(timeZoneMatch?.[0] || "UTC");
+      } else if (data.type === "interval" && data.interval) {
+        setIntervalType(data.interval.unit);
+        setIntervalAmount(data.interval.value);
       }
     }, [jobData]);
 
@@ -63,27 +68,21 @@ export const ScheduleConfig = forwardRef(
         const isoWithTimezone = `${
           updatedDate.toISOString().split("Z")[0]
         }${timezone}`;
-        const schedule = {
-          type: "fixed",
-          fixedTime: { dateTime: isoWithTimezone },
-        } as Schedule;
         const ScheduleJob = {
           key: "schedule",
-          schedule,
-        } as ScheduleJob;
+          type: "fixed",
+          fixedTime: { dateTime: isoWithTimezone },
+        } as ScheduleJobDataType;
         return ScheduleJob;
       } else {
-        const schedule = {
+        const ScheduleJob = {
+          key: "schedule",
           type: "interval",
           interval: {
             unit: intervalType,
             value: intervalAmount,
           },
-        } as Schedule;
-        const ScheduleJob = {
-          key: "schedule",
-          schedule,
-        } as ScheduleJob;
+        } as ScheduleJobDataType;
         return ScheduleJob;
       }
     };

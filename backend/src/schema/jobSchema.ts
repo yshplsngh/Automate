@@ -32,7 +32,9 @@ export const HttpJobSchema = z.object({
 
 export const WebhookJobSchema = z.object({
   key: z.literal("webhook"),
-  webhookUrl: z.string().url(),
+  input: z.object({
+    webhookUrl: z.string().url(),
+  }),
   output: z
     .array(
       z.object({
@@ -54,31 +56,32 @@ const IntervalSchema = z.object({
   value: z.number().int().positive(),
 });
 
-export const ScheduleSchema = z
-  .object({
-    type: z.enum(["fixed", "interval"]),
-    fixedTime: FixedTimeSchema.optional(),
-    interval: IntervalSchema.optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.type === "fixed" && !data.fixedTime) {
-        return false;
-      }
-      if (data.type === "interval" && !data.interval) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message:
-        "Either 'fixedTime' or 'interval' must be provided based on the 'type'.",
-      path: ["fixedTime", "interval"],
-    }
-  );
+export const BaseScheduleSchema = z.object({
+  key: z.literal("schedule"),
+  type: z.enum(["fixed", "interval"]),
+  fixedTime: FixedTimeSchema.optional(),
+  interval: IntervalSchema.optional(),
+});
 
-export const JobDataSchema = z.union([
+export const ScheduleSchema = BaseScheduleSchema.refine(
+  (data) => {
+    if (data.type === "fixed" && !data.fixedTime) {
+      return false;
+    }
+    if (data.type === "interval" && !data.interval) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message:
+      "Either 'fixedTime' or 'interval' must be provided based on the 'type'.",
+    path: ["fixedTime", "interval"],
+  }
+);
+
+export const JobDataSchema = z.discriminatedUnion("key", [
   HttpJobSchema,
   WebhookJobSchema,
-  ScheduleSchema,
+  BaseScheduleSchema,
 ]);

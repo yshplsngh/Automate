@@ -19,7 +19,19 @@ export type JobCreateDataType = z.infer<typeof JobCreateSchema>;
 export const WorkflowCreateSchema = z.object({
   id: z.string(),
   name: z.string(),
-  description: z.string().optional(),
+  description: z.string().nullable().optional(),
   jobs: z.array(JobCreateSchema),
 });
 
+export const WorkflowResponseSchema = z.object({
+  id: z.string(),
+  owner_id: z.string(),
+  name: z.string(),
+  description: z.string().nullable().optional(),
+  apps: z.array(Apps),
+  job_count: z.number(),
+  active: z.boolean(),
+  created_at: z.date(),
+  updated_at: z.date(),
+  jobs: z.array(JobCreateSchema),
+});

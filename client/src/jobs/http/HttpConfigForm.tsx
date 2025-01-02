@@ -26,7 +26,9 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTheme } from "@/providers/theme-provider";
-import { HttpJob, JobData } from "../job-config";
+import { JobDataType } from "@/types";
+
+export type HttpJobDataType = Extract<JobDataType, { key: "http" }>;
 
 const methods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
 
@@ -45,14 +47,14 @@ const sampleJson = JSON.stringify(
 type KeyValuePair = { key: string; value: string };
 
 interface HttpFormProps {
-  jobData: JobData | null;
+  jobData: JobDataType | null;
 }
 
 export const HttpForm = forwardRef(({ jobData }: HttpFormProps, ref) => {
   const { theme } = useTheme();
   const isDarkTheme = theme === "dark";
   const [httpMethod, setHttpMethod] =
-    useState<HttpJob["input"]["method"]>("GET");
+    useState<HttpJobDataType["input"]["method"]>("GET");
   const [url, setUrl] = useState<string>("https://api.example.com/endpoint");
   const [jsonBody, setJsonBody] = useState(sampleJson);
   const [parameters, setParameters] = useState<KeyValuePair[]>([
@@ -88,7 +90,7 @@ export const HttpForm = forwardRef(({ jobData }: HttpFormProps, ref) => {
 
   useEffect(() => {
     if (!jobData) return;
-    const data = jobData as HttpJob;
+    const data = jobData as HttpJobDataType;
     if (data) {
       setHttpMethod(data.input.method);
       setUrl(data.input.url);
@@ -115,14 +117,14 @@ export const HttpForm = forwardRef(({ jobData }: HttpFormProps, ref) => {
           acc[key] = value;
         }
         return acc;
-      }, {} as HttpJob["input"]["parameters"]);
+      }, {} as HttpJobDataType["input"]["parameters"]);
 
       const headersObj = headers.reduce((acc, { key, value }) => {
         if (key) {
           acc[key] = value;
         }
         return acc;
-      }, {} as HttpJob["input"]["headers"]);
+      }, {} as HttpJobDataType["input"]["headers"]);
 
       const httpJob = {
         key: "http",
@@ -133,7 +135,7 @@ export const HttpForm = forwardRef(({ jobData }: HttpFormProps, ref) => {
           headers: headersObj,
           body: jsonBody,
         },
-      } as HttpJob;
+      } as HttpJobDataType;
 
       console.log("httpform job::", jobData);
       return httpJob;
@@ -151,7 +153,7 @@ export const HttpForm = forwardRef(({ jobData }: HttpFormProps, ref) => {
           <Select
             defaultValue={httpMethod}
             onValueChange={(value) => {
-              setHttpMethod(value as HttpJob["input"]["method"]);
+              setHttpMethod(value as HttpJobDataType["input"]["method"]);
             }}
           >
             <SelectTrigger

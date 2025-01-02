@@ -102,7 +102,7 @@ export default function Workflows() {
       const data = await res.json();
       console.log(data);
       if (data.success) {
-        navigate(data.workflowData.id);
+        navigate(`${data.workflowData.id}/mode=create`);
       }
     } catch (err: any) {
       console.log(err);
@@ -213,7 +213,7 @@ export default function Workflows() {
                     <span
                       className="hover:text-purple-900 cursor-pointer hover:underline"
                       onClick={() => {
-                        navigate(workflow.id);
+                        navigate(`${workflow.id}/mode=edit`);
                       }}
                     >
                       {workflow.name}

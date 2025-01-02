@@ -3,10 +3,9 @@ import { JobCard } from "../components/JobCard";
 import { TopBar } from "../components/Topbar";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
-import { addWorkflow, updateWorkflow } from "@/store/slice/workflow";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/providers/user-provider";
-import { WorkflowType } from "@/types";
+import { updateActiveWorkflow } from "@/store/slice/workflow/workflowState";
 
 export function WorkflowCanvas() {
   const { user, userStateLoading } = useUser();
@@ -14,9 +13,8 @@ export function WorkflowCanvas() {
   const { workflowId } = useParams();
   const [searchParams, _setSearchParams] = useSearchParams();
   const [mode, setMode] = useState<string>("edit");
-  const workflows = useAppSelector((state) => state.workflow.workflows);
+  const workflow = useAppSelector((state) => state.workflow.activeWorkflow);
   const dispatch = useAppDispatch();
-  const [workflow, setWorkflow] = useState<WorkflowType | null>(null);
   const [workflowTitle, setWorkflowTitle] =
     useState<string>("Untitled Workflow");
   const [saveLoading, setSaveLoading] = useState<boolean>(false);
@@ -48,8 +46,7 @@ export function WorkflowCanvas() {
           return;
         }
         console.log(data);
-        setWorkflow(data.data);
-        dispatch(addWorkflow(data.data));
+        dispatch(updateActiveWorkflow(data.data));
       } catch (e: any) {
         console.log(e);
       }
@@ -82,11 +79,6 @@ export function WorkflowCanvas() {
       });
       return;
     }
-    console.log(workflows);
-    const currentWrokflow = workflows.find((wf) => {
-      return wf.id === workflowId;
-    });
-    console.log(currentWrokflow);
     try {
       setSaveLoading(true);
       const res = await fetch(
@@ -97,7 +89,7 @@ export function WorkflowCanvas() {
             "content-type": "application/json",
             Authorization: `Bearer ${user.token}`,
           },
-          body: JSON.stringify(currentWrokflow),
+          body: JSON.stringify(workflow),
         }
       );
       const data = await res.json();
@@ -128,12 +120,14 @@ export function WorkflowCanvas() {
 
   const updateWorkflowData = async () => {
     try {
+      console.log("workflow::", workflow);
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/workflow/${workflowId}`,
         {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${user?.token}`,
+            "content-type": "application/json",
           },
           body: JSON.stringify(workflow),
         }
@@ -145,22 +139,12 @@ export function WorkflowCanvas() {
       if (!data.success) {
         return;
       }
-      setWorkflow(data.data);
-      dispatch(updateWorkflow(data.data));
+      console.log(data);
+      dispatch(updateActiveWorkflow(data.data));
     } catch (e: any) {
       console.log(e);
     }
   };
-
-  useEffect(() => {
-    const workflow = workflows.find((workflow) => workflow.id === workflowId);
-    if (workflow) {
-      console.log("workflow::", workflow);
-      setWorkflow(workflow);
-    } else {
-      console.error("workflow not found");
-    }
-  }, [workflows]);
 
   return (
     <>

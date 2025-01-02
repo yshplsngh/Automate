@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { jobConfig, JobData } from "@/jobs/job-config";
+import { JobConfigType, JobCongiguration } from "@/jobs/job-config";
 import { AppDropdownWithDescription } from "./AppDropdown";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
@@ -16,6 +16,7 @@ import { Textarea } from "./ui/textarea";
 import { updateJob } from "@/store/slice/workflow";
 import { useDispatch } from "react-redux";
 import { JobDataType, JobType } from "@/types";
+import { useAppSelector } from "@/store/hook";
 
 interface ConfigureStepModalProps {
   isOpen: boolean;
@@ -27,7 +28,7 @@ interface ConfigureStepModalProps {
 }
 
 interface ChildRef {
-  submitHandler: () => JobData;
+  submitHandler: () => JobDataType;
 }
 
 export function ConfigureStepModal({
@@ -42,15 +43,22 @@ export function ConfigureStepModal({
   const childref = useRef<ChildRef | null>(null);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [jobData, setJobData] = useState<JobData>();
+  const [jobData, setJobData] = useState<JobDataType>();
   const [activeTab, setActiveTab] = useState<"setup" | "configure" | "test">(
     "setup"
   );
   const [enabledTabs, setEnabledTabs] = useState<string[]>(["setup"]);
-  const [selectedApp, setSelectedApp] = useState<(typeof jobConfig)[0] | null>(
-    null
+  const [selectedApp, setSelectedApp] = useState<JobType["app"] | null>(null);
+  const activeWorkflow = useAppSelector(
+    (state) => state.workflow.activeWorkflow
   );
+  const [currentJob, setCurrentJob] = useState<JobType | null>(null);
+  const [jobConfig, setJobConfig] = useState<JobConfigType | null>(null);
+
   const handleJobDataChange = () => {
+    if (!selectedApp) {
+      return;
+    }
     const job: JobType = {
       id: "no-defined",
       step_no: stepNumber,
@@ -59,14 +67,24 @@ export function ConfigureStepModal({
       type: trigger ? "trigger" : "action",
       name: name,
       description: description,
-      app: selectedApp?.app as "http" | "webhook" | "schedule",
+      app: selectedApp,
     };
     dispatch(updateJob(job));
   };
 
   useEffect(() => {
-    console.log(jobData);
-  }, [jobData]);
+    if (!activeWorkflow) {
+      return;
+    }
+    const currentJob = activeWorkflow.jobs[stepNumber - 1];
+    const j = JobCongiguration.filter((jc) => jc.app === currentJob.app)[0];
+    setCurrentJob(currentJob);
+    setJobConfig(j);
+    setSelectedApp(currentJob.app);
+    setName(currentJob.name);
+    setDescription(currentJob.description ?? "");
+    setJobData(currentJob.data);
+  }, [activeWorkflow]);
 
   const handleContinue = () => {
     if (activeTab === "setup") {
@@ -94,6 +112,8 @@ export function ConfigureStepModal({
     }
   };
 
+  // "h-5 w-5 text-orange-600"
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] min-h-96 p-0 gap-0 border border-indigo-100 flex flex-col">
@@ -102,7 +122,7 @@ export function ConfigureStepModal({
             <div className="flex items-center gap-3">
               <div className="p-2 bg-orange-100 rounded">
                 {selectedApp ? (
-                  selectedApp?.icon("h-5 w-5 text-orange-600")
+                  jobConfig?.icon("h-5 w-5 text-orange-600")
                 ) : (
                   <Zap className="h-5 w-5 text-orange-600" />
                 )}
@@ -157,7 +177,7 @@ export function ConfigureStepModal({
           >
             <div className="space-y-2">
               <AppDropdownWithDescription
-                selectedApp={selectedApp}
+                selectedApp={currentJob?.app}
                 setSelectedApp={setSelectedApp}
                 trigger={trigger}
               />
@@ -187,15 +207,15 @@ export function ConfigureStepModal({
           </TabsContent>
 
           <TabsContent value="configure" className="p-4">
-            {selectedApp &&
-              selectedApp.configForm &&
+            {jobConfig &&
+              jobConfig.configForm &&
               createElement(
-                selectedApp.configForm as unknown as React.ComponentType<{
-                  jobData: JobData;
+                jobConfig.configForm as unknown as React.ComponentType<{
+                  jobData: JobDataType;
                   ref: any;
                 }>,
                 {
-                  jobData: jobData as JobData,
+                  jobData: jobData as JobDataType,
                   ref: childref,
                 }
               )}

@@ -3,10 +3,12 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface WorkflowState {
   workflows: WorkflowType[];
+  activeWorkflow: WorkflowType | undefined;
 }
 
 const initialState: WorkflowState = {
   workflows: [],
+  activeWorkflow: undefined,
 };
 
 export const workflowState = createSlice({
@@ -21,11 +23,8 @@ export const workflowState = createSlice({
     addWorkflow: (state, action: PayloadAction<WorkflowType>) => {
       state.workflows.push(action.payload);
     },
-    updateWorkflow: (state, action: PayloadAction<WorkflowType>) => {
-      const index = state.workflows.findIndex(
-        (workflow) => workflow.id === action.payload.id
-      );
-      state.workflows[index] = action.payload;
+    updateActiveWorkflow: (state, action: PayloadAction<WorkflowType>) => {
+      state.activeWorkflow = action.payload;
     },
     deleteWorkflow: (state, action: PayloadAction<string>) => {
       state.workflows = state.workflows.filter(
@@ -33,25 +32,26 @@ export const workflowState = createSlice({
       );
     },
     updateJob: (state, action: PayloadAction<JobType>) => {
-      const index = state.workflows.findIndex(
-        (workflow) => workflow.id === action.payload.id
-      );
-      state.workflows[index].jobs[action.payload.step_no - 1] = action.payload;
+      if (state.activeWorkflow) {
+        state.activeWorkflow.jobs[action.payload.step_no - 1] = action.payload;
+      }
     },
     deleteJob: (state, action: PayloadAction<JobType>) => {
       const index = state.workflows.findIndex(
         (workflow) => workflow.id === action.payload.id
       );
-      state.workflows[index].jobs = state.workflows[index].jobs.filter(
-        (job) => job.step_no !== action.payload.step_no
-      );
+      if (state.workflows[index] && state.workflows[index].jobs) {
+        state.workflows[index].jobs = state.workflows[index].jobs.filter(
+          (job) => job.step_no !== action.payload.step_no
+        );
+      }
     },
   },
 });
 
 export const {
   addWorkflow,
-  updateWorkflow,
+  updateActiveWorkflow,
   deleteWorkflow,
   updateJob,
   deleteJob,
