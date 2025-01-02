@@ -5,6 +5,7 @@ export const NewWorkflowCreateSchema = z.object({});
 
 export const JobCreateSchema = z.object({
   id: z.string(),
+  workflow_id: z.string(),
   name: z.string(),
   description: z.string().optional(),
   app: Apps,
@@ -21,3 +22,4 @@ export const WorkflowCreateSchema = z.object({
   description: z.string().optional(),
   jobs: z.array(JobCreateSchema),
 });
+

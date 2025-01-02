@@ -8,13 +8,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Job, jobConfig, JobData } from "@/jobs/job-config";
+import { jobConfig, JobData } from "@/jobs/job-config";
 import { AppDropdownWithDescription } from "./AppDropdown";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { updateJob } from "@/store/slice/workflow";
 import { useDispatch } from "react-redux";
+import { JobDataType, JobType } from "@/types";
 
 interface ConfigureStepModalProps {
   isOpen: boolean;
@@ -50,13 +51,14 @@ export function ConfigureStepModal({
     null
   );
   const handleJobDataChange = () => {
-    const job: Job = {
-      step: stepNumber,
-      workflowId: workflowId,
-      data: jobData as JobData,
+    const job: JobType = {
+      id: "no-defined",
+      step_no: stepNumber,
+      workflow_id: workflowId,
+      data: jobData as JobDataType,
       type: trigger ? "trigger" : "action",
       name: name,
-      descripton: description,
+      description: description,
       app: selectedApp?.app as "http" | "webhook" | "schedule",
     };
     dispatch(updateJob(job));

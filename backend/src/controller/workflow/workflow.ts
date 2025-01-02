@@ -24,13 +24,15 @@ export const createNewWorkflowController = async (
       },
       include: {
         jobs: true,
-      },
+      }
     });
+
+    const safeData = WorkflowCreateSchema.parse(data);
 
     res.status(200).json({
       success: true,
       message: "Workflow created",
-      workflowData: data,
+      data: safeData,
     });
   } catch (e) {
     console.log(e);
@@ -91,15 +93,17 @@ export const createWorkflowController = async (
 
       // Return the updated workflow with jobs
       return prisma.workflow.findFirst({
-        where: { id: id },
+        where: { id: id, owner_id: userId },
         include: { jobs: true },
       });
     });
 
+    const safeData = WorkflowCreateSchema.parse(result)
+
     res.status(201).json({
       success: true,
       message: "Workflow and jobs created successfully.",
-      data: result,
+      data: safeData,
     });
   } catch (e: any) {
     if (e instanceof z.ZodError) {
@@ -151,11 +155,11 @@ export const getAllWorkflowDataController = async (
       },
     });
 
-    console.log(data);
+    const safeData = WorkflowCreateSchema.parse(data)
 
     res.status(200).json({
       success: true,
-      data,
+      data: safeData,
     });
     return;
   } catch (err: any) {
@@ -190,10 +194,10 @@ export const getWorkflowDataController = async (
       });
       return;
     }
-    console.log(data);
+    const safeData = WorkflowCreateSchema.parse(data)
     res.status(200).json({
       success: true,
-      data: data,
+      data: safeData,
     });
     return;
   } catch (err: any) {
@@ -248,7 +252,7 @@ export const updateWorkflowController = async (
         for (const job of jobs) {
           const jobData = await prisma.job.upsert({
             where: {
-              id: job.id, // Assuming job.id can be absent for new jobs
+              id: job.id, 
             },
             create: {
               workflow_id: id,
@@ -286,13 +290,17 @@ export const updateWorkflowController = async (
         },
       });
 
-      return workflow;
+      return prisma.workflow.findFirst({
+        where: { id: id, owner_id: userId },
+        include: { jobs: true },
+      });
     });
+
+    const safeData = WorkflowCreateSchema.parse(data)
 
     res.status(200).json({
       success: true,
-      message: "Workflow updated successfully.",
-      data: data,
+      data: safeData,
     });
     return;
   } catch (err: any) {
