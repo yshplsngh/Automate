@@ -1,12 +1,13 @@
 import { workflowState } from "./workflowState";
 
 export const {
-  addWorkflow,
-  updateWorkflow,
+  addWorkflows,
+  updateActiveWorkflow,
   deleteWorkflow,
   updateJob,
   deleteJob,
   getWorkflowsById,
+  updateWorkflowActiveStatus,
 } = workflowState.actions;
 
 export default workflowState.reducer;

@@ -7,6 +7,7 @@ import {
   WorkflowResponseSchema,
 } from "./schema";
 import { z } from "zod";
+import { WorkflowResponseType } from "../../types";
 
 // Controller function for creating a new workflow
 export const createNewWorkflowController = async (
@@ -167,7 +168,7 @@ export const getAllWorkflowDataController = async (
       },
     });
 
-    const safeParseData = [];
+    const safeParseData: WorkflowResponseType[] = [];
 
     for (const d of data) {
       let p = WorkflowResponseSchema.parse(d);
@@ -367,6 +368,55 @@ export const activateWorkflowController = async (
       },
       data: {
         active: true,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        id: workflowId,
+        active: (await data).active,
+      },
+    });
+    return;
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Unexpected Error has happened.",
+    });
+    return;
+  }
+};
+
+// PUT /:id/deactivate
+export const deactivateWorkflowController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const userId = req.user?.id;
+  const workflowId = req.params.id;
+  try {
+    const workflow = db.workflow.findFirst({
+      where: {
+        id: workflowId,
+        owner_id: userId,
+      },
+    });
+    if (!workflow) {
+      res.status(404).json({
+        success: false,
+        message: "No workflow found.",
+      });
+      return;
+    }
+    const data = db.workflow.update({
+      where: {
+        id: workflowId,
+        owner_id: userId,
+      },
+      data: {
+        active: false,
       },
     });
 

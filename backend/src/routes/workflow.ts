@@ -3,6 +3,7 @@ import {
   activateWorkflowController,
   createNewWorkflowController,
   createWorkflowController,
+  deactivateWorkflowController,
   getAllWorkflowDataController,
   getWorkflowDataController,
   updateWorkflowController,
@@ -21,5 +22,7 @@ workflowRouter.post("/:id", createWorkflowController);
 workflowRouter.put("/:id", updateWorkflowController);
 
 workflowRouter.put("/:id/activate", activateWorkflowController);
+
+workflowRouter.put("/:id/deactivate", deactivateWorkflowController);
 
 export default workflowRouter;

@@ -31,6 +31,12 @@ import { useEffect, useState } from "react";
 import { useUser } from "@/providers/user-provider";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { WorkflowType } from "@/types";
+import { useAppDispatch, useAppSelector } from "@/store/hook";
+import {
+  addWorkflows,
+  updateWorkflowActiveStatus,
+} from "@/store/slice/workflow";
 
 // Custom purple theme
 const purpleTheme = {
@@ -44,7 +50,8 @@ export default function Workflows() {
   const { user, userStateLoading } = useUser();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [workflowData, setWorkflowData] = useState([]);
+  const workflows = useAppSelector((state) => state.workflow.workflows);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,7 +71,7 @@ export default function Workflows() {
         const data = await res.json();
         if (data.success) {
           console.log(data.data);
-          setWorkflowData(data.data);
+          dispatch(addWorkflows(data.data as WorkflowType[]));
         } else {
           toast({
             title: "Error",
@@ -113,10 +120,86 @@ export default function Workflows() {
     }
   };
 
-  const convertDate = (date: string): string => {
+  const convertDate = (date: Date): string => {
     const d = new Date(date).toLocaleDateString();
     const t = d.split("/");
     return `${t[0]}-${t[1]}-${t[2]}`;
+  };
+
+  const activateWorkflow = async (workflowId: string): Promise<void> => {
+    if (workflowId === "") {
+      return;
+    }
+    try {
+      const res = await fetch(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/workflow/${workflowId}/activate`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      const data = await res.json();
+      if (data.success) {
+        dispatch(updateWorkflowActiveStatus({ id: workflowId, active: true }));
+        toast({
+          title: "Success",
+          description: data.message ?? "Workflow activated successfully.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: data.message ?? "An unexpected error happened.",
+        });
+      }
+    } catch (e: any) {
+      console.log(e);
+      toast({
+        title: "Error",
+        description: e.message ?? "An unexpected error happened.",
+      });
+    }
+  };
+
+  const deactivateWorkflow = async (workflowId: string) => {
+    if (workflowId === "") {
+      return false;
+    }
+    try {
+      const res = await fetch(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/workflow/${workflowId}/activate`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+      const data = await res.json();
+      if (data.success) {
+        dispatch(updateWorkflowActiveStatus({ id: workflowId, active: false }));
+        toast({
+          title: "Success",
+          description: data.message ?? "Workflow deactivated successfully.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: data.message ?? "An unexpected error happened.",
+        });
+      }
+    } catch (e: any) {
+      console.log(e);
+      toast({
+        title: "Error",
+        description: e.message ?? "An unexpected error happened.",
+      });
+    }
   };
 
   return (
@@ -201,8 +284,8 @@ export default function Workflows() {
                 </div>
               </TableCell>
             </TableRow>
-          ) : workflowData.length > 0 ? (
-            workflowData.map((workflow: any) => (
+          ) : workflows.length > 0 ? (
+            workflows.map((workflow: WorkflowType) => (
               <TableRow
                 key={workflow.id}
                 className="align-middle dark:border-gray-400"
@@ -240,12 +323,17 @@ export default function Workflows() {
                   </div>
                 </TableCell>
                 <TableCell className="gap-0 p-0">
-                  {convertDate(workflow.updated_at as string)}
+                  {convertDate(workflow.updated_at)}
                 </TableCell>
                 <TableCell className="gap-0 p-0">
                   <Switch
-                    onCheckedChange={() => {
-                      console.log("toggle switch");
+                    checked={workflow.active}
+                    onCheckedChange={(checked: boolean) => {
+                      if (!checked) {
+                        activateWorkflow(workflow.id);
+                      } else {
+                        deactivateWorkflow(workflow.id);
+                      }
                     }}
                     className="data-[state=checked]:bg-purple-600 data-[state=unchecked]:bg-gray-300 data-[state=unchecked]:dark:bg-neutral-400 [&>*]:bg-white"
                   />

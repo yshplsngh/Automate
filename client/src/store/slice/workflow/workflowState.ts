@@ -15,16 +15,27 @@ export const workflowState = createSlice({
   name: "workflowState",
   initialState: initialState,
   reducers: {
+    addWorkflows: (state, action: PayloadAction<WorkflowType[]>) => {
+      state.workflows = action.payload;
+    },
     getWorkflowsById: (state, action: PayloadAction<string>) => {
       state.workflows = state.workflows.filter(
         (workflow) => workflow.id === action.payload
       );
     },
-    addWorkflow: (state, action: PayloadAction<WorkflowType>) => {
-      state.workflows.push(action.payload);
-    },
     updateActiveWorkflow: (state, action: PayloadAction<WorkflowType>) => {
       state.activeWorkflow = action.payload;
+    },
+    updateWorkflowActiveStatus: (
+      state,
+      action: PayloadAction<{ id: string; active: boolean }>
+    ) => {
+      const index = state.workflows.findIndex(
+        (w) => w.id === action.payload.id
+      );
+      if (state.workflows[index]) {
+        state.workflows[index].active = action.payload.active;
+      }
     },
     deleteWorkflow: (state, action: PayloadAction<string>) => {
       state.workflows = state.workflows.filter(
@@ -50,11 +61,12 @@ export const workflowState = createSlice({
 });
 
 export const {
-  addWorkflow,
+  addWorkflows,
   updateActiveWorkflow,
   deleteWorkflow,
   updateJob,
   deleteJob,
   getWorkflowsById,
+  updateWorkflowActiveStatus,
 } = workflowState.actions;
 export default workflowState.reducer;
