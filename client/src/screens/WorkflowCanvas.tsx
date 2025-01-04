@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { useToast } from "@/hooks/use-toast";
 import { useUser } from "@/providers/user-provider";
 import { updateActiveWorkflow } from "@/store/slice/workflow/workflowState";
+import { setActiveWorkflowTitle } from "@/store/slice/workflow";
 
 export function WorkflowCanvas() {
   const { user, userStateLoading } = useUser();
@@ -15,8 +16,7 @@ export function WorkflowCanvas() {
   const [mode, setMode] = useState<string>("edit");
   const workflow = useAppSelector((state) => state.workflow.activeWorkflow);
   const dispatch = useAppDispatch();
-  const [workflowTitle, setWorkflowTitle] =
-    useState<string>("Untitled Workflow");
+  const workflowTitle = workflow?.name ?? "Untitled Wrokflow";
   const [saveLoading, setSaveLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -71,6 +71,12 @@ export function WorkflowCanvas() {
     }
   };
 
+  const setWorkflowTitle = (title: string) => {
+    if (!workflow) {
+      return;
+    }
+    dispatch(setActiveWorkflowTitle(title));
+  };
   const saveWorkflow = async () => {
     if (!user) {
       toast({
@@ -141,8 +147,16 @@ export function WorkflowCanvas() {
       }
       console.log(data);
       dispatch(updateActiveWorkflow(data.data));
+      toast({
+        title: "Success",
+        description: "Your workflow has been saved successfully.",
+      });
     } catch (e: any) {
       console.log(e);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+      });
     }
   };
 

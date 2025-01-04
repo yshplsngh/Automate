@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,11 +11,11 @@ import { JobType } from "@/types";
 
 export function AppDropdownWithDescription({
   selectedApp,
-  setSelectedApp,
+  onSelectChange,
   trigger,
 }: {
   selectedApp: JobType["app"] | undefined;
-  setSelectedApp: React.Dispatch<React.SetStateAction<JobType["app"] | null>>;
+  onSelectChange: (app: JobType["app"]) => void;
   trigger: boolean;
 }): JSX.Element {
   return (
@@ -54,7 +53,10 @@ export function AppDropdownWithDescription({
           ).map((app) => (
             <DropdownMenuItem
               key={app.id}
-              onSelect={() => setSelectedApp(app.app)}
+              onSelect={() => {
+                console.log("Selected app:", app.app);
+                onSelectChange(app.app);
+              }}
               className="flex items-start gap-3 p-2 cursor-pointer hover:bg-slate-200 dark:text-white dark:bg-black dark:hover:bg-slate-900"
             >
               {app.icon("h-5 w-5 shrink-0 mt-0.5 text-muted-foreground")}

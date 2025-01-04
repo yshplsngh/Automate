@@ -66,18 +66,20 @@ model Job {
 
 model Execution {
     id String @id @unique @default(uuid())
-    workflow_id String
-    execution_time DateTime
+    workflow_id String 
+    execution_time DateTime //when this execution should start
     results Json[] @default([])
-    created_at DateTime @default(now())
+    total_job_executed Int
     status ExecutionStatus
     job_index Int // will point to the index of job that is going to be executed.
+    created_at DateTime @default(now())
     finished_at DateTime?
 }
 
 enum ExecutionStatus {
     running
     pending
+    completed
 }
 
 enum Apps {

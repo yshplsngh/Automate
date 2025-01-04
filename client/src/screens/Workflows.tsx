@@ -109,7 +109,7 @@ export default function Workflows() {
       const data = await res.json();
       console.log(data);
       if (data.success) {
-        navigate(`${data.workflowData.id}/mode=create`);
+        navigate(`${data.workflowData.id}?mode=create`);
       }
     } catch (err: any) {
       console.log(err);
@@ -172,7 +172,7 @@ export default function Workflows() {
       const res = await fetch(
         `${
           import.meta.env.VITE_BACKEND_URL
-        }/api/workflow/${workflowId}/activate`,
+        }/api/workflow/${workflowId}/deactivate`,
         {
           method: "PUT",
           headers: {
@@ -296,7 +296,7 @@ export default function Workflows() {
                     <span
                       className="hover:text-purple-900 cursor-pointer hover:underline"
                       onClick={() => {
-                        navigate(`${workflow.id}/mode=edit`);
+                        navigate(`${workflow.id}?mode=edit`);
                       }}
                     >
                       {workflow.name}
@@ -330,9 +330,9 @@ export default function Workflows() {
                     checked={workflow.active}
                     onCheckedChange={(checked: boolean) => {
                       if (!checked) {
-                        activateWorkflow(workflow.id);
-                      } else {
                         deactivateWorkflow(workflow.id);
+                      } else {
+                        activateWorkflow(workflow.id);
                       }
                     }}
                     className="data-[state=checked]:bg-purple-600 data-[state=unchecked]:bg-gray-300 data-[state=unchecked]:dark:bg-neutral-400 [&>*]:bg-white"

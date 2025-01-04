@@ -52,7 +52,6 @@ export function ConfigureStepModal({
   const activeWorkflow = useAppSelector(
     (state) => state.workflow.activeWorkflow
   );
-  const [currentJob, setCurrentJob] = useState<JobType | null>(null);
   const [jobConfig, setJobConfig] = useState<JobConfigType | null>(null);
 
   const handleJobDataChange = () => {
@@ -72,19 +71,32 @@ export function ConfigureStepModal({
     dispatch(updateJob(job));
   };
 
+  const onJobSelectChange = (app: JobType["app"]) => {
+    if (app === selectedApp) {
+      return;
+    }
+    console.log("job select change::", app);
+    setSelectedApp(app);
+    setJobData(undefined);
+    const j = JobCongiguration.filter((jc) => jc.app === app)[0];
+    setJobConfig(j);
+  };
+
   useEffect(() => {
-    if (!activeWorkflow) {
+    if (!activeWorkflow || activeWorkflow.jobs.length == 0) {
       return;
     }
     const currentJob = activeWorkflow.jobs[stepNumber - 1];
+    if (!currentJob) {
+      return;
+    }
     const j = JobCongiguration.filter((jc) => jc.app === currentJob.app)[0];
-    setCurrentJob(currentJob);
     setJobConfig(j);
     setSelectedApp(currentJob.app);
     setName(currentJob.name);
     setDescription(currentJob.description ?? "");
     setJobData(currentJob.data);
-  }, [activeWorkflow]);
+  }, []);
 
   const handleContinue = () => {
     if (activeTab === "setup") {
@@ -177,8 +189,8 @@ export function ConfigureStepModal({
           >
             <div className="space-y-2">
               <AppDropdownWithDescription
-                selectedApp={currentJob?.app}
-                setSelectedApp={setSelectedApp}
+                selectedApp={selectedApp ?? undefined}
+                onSelectChange={onJobSelectChange}
                 trigger={trigger}
               />
               <div className="space-y-2">

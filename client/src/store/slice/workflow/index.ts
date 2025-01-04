@@ -8,6 +8,7 @@ export const {
   deleteJob,
   getWorkflowsById,
   updateWorkflowActiveStatus,
+  setActiveWorkflowTitle,
 } = workflowState.actions;
 
 export default workflowState.reducer;

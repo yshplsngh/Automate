@@ -57,6 +57,11 @@ export const workflowState = createSlice({
         );
       }
     },
+    setActiveWorkflowTitle: (state, action: PayloadAction<string>) => {
+      if (state.activeWorkflow) {
+        state.activeWorkflow.name = action.payload;
+      }
+    },
   },
 });
 
@@ -68,5 +73,6 @@ export const {
   deleteJob,
   getWorkflowsById,
   updateWorkflowActiveStatus,
+  setActiveWorkflowTitle,
 } = workflowState.actions;
 export default workflowState.reducer;
