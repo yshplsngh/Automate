@@ -6,10 +6,10 @@ import {
   WorkflowCreateSchema,
   WorkflowResponseSchema,
 } from "./schema";
-import { z } from "zod";
+import { object, z } from "zod";
 import { WorkflowResponseType } from "../../types";
 import { HandleScheduleNextExecution } from "../../utils/schedule-execution";
-import { createTriggerforWorkflow } from "./helper";
+import { createTriggerForWorkflow } from "./helper";
 
 // Controller function for creating a new workflow
 export const createNewWorkflowController = async (
@@ -91,16 +91,25 @@ export const createWorkflowController = async (
       }
 
       // Create new jobs associated with the workflow
+      console.log("Jobs createworkflowcontroller:", jobs);
       if (jobs) {
         await prisma.job.createMany({
-          data: jobs.map((job: JobCreateDataType) => ({
+          data: jobs.map(({ id, ...job }: JobCreateDataType) => ({
             ...job,
             workflow_id: dbWorkflow.id,
           })),
         });
+
+        // const createdJobs = await prisma.job.findMany({
+        //   where: {
+        //     workflow_id: dbWorkflow.id,
+        //   },
+        // });
+        // console.log("created Job", createdJobs);
+        // for every workflow a trigger has to be created.
+        await createTriggerForWorkflow(jobs[0], prisma);
       }
-      
-      await createTriggerforWorkflow(jobs[0], prisma)
+
       // Return the updated workflow with jobs
       return prisma.workflow.findFirst({
         where: { id: id, owner_id: userId },
@@ -138,11 +147,10 @@ export const createWorkflowController = async (
   }
 };
 
-
 /*
-* Get all workflows without the job data.
-* GET /all
-*/
+ * Get all workflows without the job data.
+ * GET /all
+ */
 export const getAllWorkflowDataController = async (
   req: Request,
   res: Response
@@ -186,7 +194,7 @@ export const getAllWorkflowDataController = async (
       success: true,
       data: safeParseData,
     });
-    
+
     return;
   } catch (err: any) {
     console.error("Error fetching workflows:", err.message || err);
@@ -197,7 +205,8 @@ export const getAllWorkflowDataController = async (
   }
 };
 
-// workflow/:id
+// return the job data of a workflow.
+//GET workflow/:id
 export const getWorkflowDataController = async (
   req: Request,
   res: Response
@@ -324,6 +333,8 @@ export const updateWorkflowController = async (
         },
       });
 
+      await createTriggerForWorkflow(jobs[0], prisma);
+
       return prisma.workflow.findFirst({
         where: { id: id, owner_id: userId },
         include: { jobs: true },
@@ -416,13 +427,14 @@ export const deactivateWorkflowController = async (
       });
       return;
     }
-    const data = db.workflow.update({
+    const data = await db.workflow.update({
       where: {
         id: workflowId,
         owner_id: userId,
       },
       data: {
         active: false,
+        next_execution: null,
       },
     });
 
@@ -430,7 +442,7 @@ export const deactivateWorkflowController = async (
       success: true,
       data: {
         id: workflowId,
-        active: (await data).active,
+        active: data.active,
       },
     });
     return;
